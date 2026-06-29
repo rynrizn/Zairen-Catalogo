@@ -1,0 +1,30 @@
+@import url('../../css/tokens.css');
+
+:root,
+[data-theme="light"] {
+  /* === ADMIN SPECIFIC TOKENS === */
+  
+  /* Status Colors (Inventario & Stock) */
+  --z-admin-stock-ok:      #10B981;
+  --z-admin-stock-low:     #F59E0B;
+  --z-admin-stock-out:     #EF4444;
+  --z-admin-stock-pre:     #8B5CF6;
+  --z-admin-stock-new:     #3B82F6;
+
+  /* Solid Backgrounds (Admin app) */
+  --z-admin-page-bg:       #F6F4EE; /* Equivalente al fondo claro del catálogo */
+  --z-admin-login-bg:      #E8E6E1; /* Levemente diferenciado para el login */
+  
+  /* Tables & Forms */
+  --z-admin-row-hover:     rgba(0, 0, 0, 0.03);
+  --z-admin-border-focus:  var(--z-crimson);
+}
+
+[data-theme="dark"] {
+  /* Solid Backgrounds (Admin app) */
+  --z-admin-page-bg:       #0E0F11; /* Equivalente al fondo oscuro del catálogo */
+  --z-admin-login-bg:      #16171A; /* Levemente diferenciado para el login */
+
+  /* Tables & Forms */
+  --z-admin-row-hover:     rgba(255, 255, 255, 0.03);
+}

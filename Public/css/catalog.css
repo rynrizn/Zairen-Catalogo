@@ -1,0 +1,26 @@
+/* === Zairen Lab — Catalog Styles === */
+
+#catalog-container {
+  min-height: calc(100vh - 250px);
+  padding-bottom: 64px;
+}
+
+/* === Footer === */
+.main-footer {
+  text-align: center;
+  padding: 48px 24px;
+  border-top: 1px solid var(--z-border);
+  margin-top: 48px;
+}
+
+.logo-small {
+  font-family: var(--z-font-display);
+  font-size: 18px;
+  color: var(--z-muted);
+  margin-bottom: 8px;
+}
+
+.credits {
+  font-size: 12px;
+  color: var(--z-muted);
+}

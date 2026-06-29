@@ -1,0 +1,164 @@
+{
+  "configuracion": {
+    "marca": "Zairen Lab",
+    "whatsappNumber": "+56900000000",
+    "baseUrl": "https://tu-dominio.com",
+    "estados": {
+      "nuevo": {
+        "texto": "NUEVO",
+        "color": "#10B981"
+      },
+      "oferta": {
+        "texto": "OFERTA",
+        "color": "#F59E0B"
+      },
+      "agotado": {
+        "texto": "AGOTADO",
+        "color": "#EF4444"
+      },
+      "preventa": {
+        "texto": "PREVENTA",
+        "color": "#8B5CF6"
+      },
+      "disponible": {
+        "texto": "DISPONIBLE",
+        "color": "#3B82F6"
+      }
+    }
+  },
+  "productos": [
+    {
+      "id": "essentials-001",
+      "nombre": "ZR-01 Core Tee",
+      "precio": "45.000",
+      "moneda": "CLP",
+      "seccion": "essentials",
+      "tipo": "ropa",
+      "estado": "nuevo",
+      "tallas": ["S", "M", "L", "XL"],
+      "imagen": "./assets/core_tee.png",
+      "descripcion": "Una polera diseñada con precisión arquitectónica. Fit oversize con un cuello estructurado, fabricada con nuestro algodón Supima pesado.",
+      "detalles": {
+        "material": "100% Algodón Supima Orgánico, 280gsm",
+        "fit": "Oversize / Boxy Drop Shoulder",
+        "cuidado": "Lavar en frío, no planchar estampados, secar en sombra"
+      },
+      "tags": ["core", "minimal"],
+      "destacado": true
+    },
+    {
+      "id": "essentials-002",
+      "nombre": "Heavyweight Kuro Tee",
+      "precio": "39.990",
+      "moneda": "CLP",
+      "seccion": "essentials",
+      "tipo": "ropa",
+      "estado": "disponible",
+      "tallas": ["S", "M", "L", "XL"],
+      "imagen": "./assets/heavyweight_tee.png",
+      "descripcion": "Concebida en Tokio. Tejido de alta densidad que mantiene la estructura del cuerpo, creando una silueta rígida pero transpirable.",
+      "detalles": {
+        "material": "100% Algodón Peinado, 320gsm",
+        "fit": "Estructurado / Regular",
+        "cuidado": "Lavar en seco o ciclo delicado"
+      },
+      "tags": ["heavyweight", "dark"],
+      "destacado": false
+    },
+    {
+      "id": "essentials-003",
+      "nombre": "Oversize Drape Tee",
+      "precio": "35.990",
+      "moneda": "CLP",
+      "seccion": "essentials",
+      "tipo": "ropa",
+      "estado": "oferta",
+      "tallas": ["S", "M", "L"],
+      "imagen": "./assets/drape_tee.png",
+      "descripcion": "Una aproximación deconstructiva a la prenda básica por excelencia. Caída suave, dobladillos asimétricos y un tratamiento sutil del tejido.",
+      "detalles": {
+        "material": "Mezcla Tencel / Algodón, 160gsm",
+        "fit": "Drape / Flujo Relajado",
+        "cuidado": "Lavar a mano recomendada"
+      },
+      "tags": ["drape", "avant-garde"],
+      "destacado": false
+    },
+    {
+      "id": "anime-001",
+      "nombre": "Akatsuki Oversize Hoodie",
+      "precio": "59.990",
+      "moneda": "CLP",
+      "seccion": "anime",
+      "tipo": "ropa",
+      "estado": "nuevo",
+      "tallas": ["M", "L", "XL", "XXL"],
+      "imagen": "./assets/core_tee.png",
+      "descripcion": "Hoodie oversize con bordado Akatsuki en la espalda. Tejido heavyweight de 380gsm con capucha doble capa y bolsillo canguro.",
+      "detalles": {
+        "material": "100% Algodón Fleece, 380gsm",
+        "fit": "Oversize / Drop Shoulder",
+        "cuidado": "Lavar del revés, ciclo delicado"
+      },
+      "tags": ["anime", "naruto"],
+      "destacado": true
+    },
+    {
+      "id": "anime-002",
+      "nombre": "Eva Unit-01 Sneakers",
+      "precio": "89.990",
+      "moneda": "CLP",
+      "seccion": "anime",
+      "tipo": "zapatillas",
+      "estado": "preventa",
+      "tallas": ["38", "39", "40", "41", "42", "43"],
+      "imagen": "./assets/heavyweight_tee.png",
+      "descripcion": "Zapatillas inspiradas en la Unidad 01 de Evangelion. Suela chunky con detalles en verde y púrpura neón. Edición limitada.",
+      "detalles": {
+        "material": "Upper sintético premium + Mesh transpirable",
+        "fit": "True to size",
+        "cuidado": "Limpiar con paño húmedo"
+      },
+      "tags": ["evangelion", "limited"],
+      "destacado": false
+    },
+    {
+      "id": "peliculas-001",
+      "nombre": "Blade Runner 2049 Tee",
+      "precio": "42.000",
+      "moneda": "CLP",
+      "seccion": "peliculas",
+      "tipo": "ropa",
+      "estado": "disponible",
+      "tallas": ["S", "M", "L", "XL"],
+      "imagen": "./assets/drape_tee.png",
+      "descripcion": "Polera con arte minimalista de Blade Runner 2049. Estampado serigrafiado de alta densidad sobre algodón premium.",
+      "detalles": {
+        "material": "100% Algodón Ring-Spun, 240gsm",
+        "fit": "Regular / Relaxed",
+        "cuidado": "Lavar del revés en frío"
+      },
+      "tags": ["sci-fi", "cyberpunk"],
+      "destacado": false
+    },
+    {
+      "id": "peliculas-002",
+      "nombre": "Godzilla Kaiju Figure",
+      "precio": "125.000",
+      "moneda": "CLP",
+      "seccion": "peliculas",
+      "tipo": "figuras",
+      "estado": "agotado",
+      "tallas": ["Única"],
+      "imagen": "./assets/core_tee.png",
+      "descripcion": "Figura coleccionable de Godzilla en resina de alta calidad. 25cm de altura con base temática incluida. Pintado a mano.",
+      "detalles": {
+        "material": "Resina de poliuretano",
+        "fit": "25cm altura",
+        "cuidado": "Evitar luz solar directa"
+      },
+      "tags": ["kaiju", "collectible"],
+      "destacado": false
+    }
+  ]
+}

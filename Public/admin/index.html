@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zairen Lab | CMS Admin</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Hanken+Grotesk:wght@300;400;500;600;700&family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/tokens.css">
+    <link rel="stylesheet" href="../css/components.css">
+    <link rel="stylesheet" href="css/tokens.css">
+    <link rel="stylesheet" href="css/admin.css">
+
+    <!-- JS -->
+    <script src="../js/theme.js"></script>
+    <script src="../js/storage.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/admin.js" defer></script>
+</head>
+<body class="admin-page">
+
+    <!-- ============================================== -->
+    <!-- [A] LOGIN SCREEN                               -->
+    <!-- ============================================== -->
+    <div id="login-screen">
+        <div class="bento-cell login-card">
+            <h1 class="login-title">ZAIREN LAB<br>ACCESS</h1>
+            <input type="password" id="admin-password" class="admin-input" placeholder="Contraseña de acceso" style="text-align: center;">
+            <button id="login-btn" class="action-button" style="width: 100%; justify-content: center;">Entrar</button>
+            <p id="login-error" class="error-msg" style="display: none;">Acceso denegado</p>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- [B] ADMIN APP                                  -->
+    <!-- ============================================== -->
+    <div id="admin-app" style="display: none;">
+        
+        <!-- NAVBAR -->
+        <nav class="admin-navbar">
+            <a href="#" class="admin-brand">
+                <span class="brand-text">ZAIREN | ザイレン</span>
+            </a>
+            
+            <span class="admin-nav-divider"></span>
+            
+            <button class="hamburger-btn" id="mobile-menu-btn">
+                <span></span><span></span><span></span>
+            </button>
+            
+            <div class="admin-nav-links" id="nav-links-container">
+                <a class="admin-nav-link active" data-view="view-inventario">Ver Inventario</a>
+                <a class="admin-nav-link" data-view="view-agregar" id="nav-agregar-btn">Agregar Producto</a>
+                <a class="admin-nav-link" data-view="view-stock">Control de Stock</a>
+                <a class="admin-nav-link" data-view="view-notificaciones">Notificaciones</a>
+                <a class="admin-nav-link" data-view="view-config">Personalización</a>
+                <a class="admin-nav-link" data-view="view-metricas">Métricas</a>
+            </div>
+            
+            <span class="admin-nav-divider hidden-mobile" style="margin-left:auto;"></span>
+            
+            <div class="admin-nav-actions">
+                <button id="theme-toggle-btn" class="icon-btn" title="Cambiar tema" onclick="toggleTheme()">
+                    <span id="theme-toggle-icon" class="material-symbols-outlined">dark_mode</span>
+                </button>
+                <button id="logout-btn" class="icon-btn" title="Cerrar Sesión">
+                    <span class="material-symbols-outlined">logout</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- MAIN CONTAINER -->
+        <main class="admin-main">
+            
+            <!-- VISTA 1: INVENTARIO -->
+            <section id="view-inventario" class="admin-view active">
+                <div class="view-header">
+                    <h2>Inventario de Productos</h2>
+                    <p>Gestiona todos los productos de tu catálogo. Base de datos actual.</p>
+                </div>
+                
+                <!-- Barra de Filtros y Ordenamiento Premium -->
+                <div class="admin-filter-bar">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="material-symbols-outlined" style="color: var(--z-text-secondary); font-size: 20px;">filter_list</span>
+                        <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--z-text-secondary); text-transform: uppercase;">Filtros:</span>
+                    </div>
+                    
+                    <div class="admin-search-container" style="position: relative; flex: 1; min-width: 200px; max-width: 300px;">
+                        <span class="material-symbols-outlined" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 18px; color: var(--z-text-secondary); pointer-events: none;">search</span>
+                        <input type="text" id="search-inventario" class="admin-input" placeholder="Buscar producto o tipo..." style="padding-left: 38px; margin-bottom: 0; height: 46px;">
+                    </div>
+                    
+                    <select id="filter-tipo-inventario" class="admin-input admin-select" style="max-width: 200px; margin-bottom: 0;">
+                        <option value="todos">Todos los Tipos</option>
+                    </select>
+                    
+                    <select id="sort-inventario" class="admin-input admin-select" style="max-width: 200px; margin-bottom: 0;">
+                        <option value="default">Ordenar por...</option>
+                        <option value="name-asc">Nombre (A-Z)</option>
+                        <option value="name-desc">Nombre (Z-A)</option>
+                        <option value="price-asc">Precio (Menor a Mayor)</option>
+                        <option value="price-desc">Precio (Mayor a Menor)</option>
+                    </select>
+                </div>
+                
+                <div class="admin-table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 60px;">Img</th>
+                                <th>Nombre</th>
+                                <th>Precio</th>
+                                <th>Sección</th>
+                                <th>Estado</th>
+                                <th style="text-align: right;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventario-tbody">
+                            <!-- Inyectado via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- VISTA 2: AGREGAR PRODUCTO -->
+            <section id="view-agregar" class="admin-view">
+                <div class="view-header">
+                    <h2>Agregar Producto</h2>
+                    <p>Crea un nuevo artículo en la base de datos.</p>
+                </div>
+                
+                <div class="bento-cell" style="padding: 32px;">
+                    <form id="form-agregar">
+                        <div class="admin-form-grid">
+                            <!-- Col 1 -->
+                            <div>
+                                <div class="form-group">
+                                    <label>Nombre del Producto</label>
+                                    <input type="text" id="add-nombre" class="admin-input" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Precio (ej: 45.000)</label>
+                                    <input type="text" id="add-precio" class="admin-input" required>
+                                </div>
+                                 <div class="form-group">
+                                    <label>Sección / Colección</label>
+                                    <div style="display: flex; gap: 8px;">
+                                        <select id="add-seccion" class="admin-input admin-select" required style="flex: 1;">
+                                            <option value="essentials">Essentials</option>
+                                            <option value="anime">Anime</option>
+                                            <option value="peliculas">Películas</option>
+                                            <option value="nueva">Otra (Nueva Sección)...</option>
+                                        </select>
+                                    </div>
+                                    <input type="text" id="add-seccion-nueva" class="admin-input" placeholder="Nombre de la nueva sección" style="display: none; margin-top: 8px;">
+                                </div>
+                                <div class="form-group">
+                                    <label>Tipo de Producto</label>
+                                    <select id="add-tipo" class="admin-input admin-select" required>
+                                        <option value="polera">Polera</option>
+                                        <option value="servicio">Servicio</option>
+                                        <option value="ropa">Ropa</option>
+                                        <option value="zapatillas">Zapatillas</option>
+                                        <option value="figuras">Figuras</option>
+                                        <option value="otro">Otro (Nuevo Tipo)...</option>
+                                    </select>
+                                    <input type="text" id="add-tipo-nuevo" class="admin-input" placeholder="Nombre del nuevo tipo" style="display: none; margin-top: 8px;">
+                                </div>
+                                <div class="form-group">
+                                    <label>URL de Imagen (relativa o absoluta)</label>
+                                    <input type="text" id="add-imagen" class="admin-input" placeholder="./assets/tushirt.png" required>
+                                </div>
+                            </div>
+                            
+                            <!-- Col 2 -->
+                            <div>
+                                <div class="form-group">
+                                    <label>Estado Inicial</label>
+                                    <select id="add-estado" class="admin-input admin-select" required>
+                                        <option value="nuevo">NUEVO</option>
+                                        <option value="disponible">DISPONIBLE</option>
+                                        <option value="preventa">PREVENTA</option>
+                                        <option value="oferta">OFERTA</option>
+                                        <option value="agotado">AGOTADO</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Tallas Disponibles (Separadas por coma)</label>
+                                    <input type="text" id="add-tallas" class="admin-input" placeholder="S, M, L, XL" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Descripción Corta</label>
+                                    <textarea id="add-desc" class="admin-input admin-textarea" required></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 24px; display: flex; justify-content: flex-end; align-items: center; gap: 16px;">
+                            <button type="button" id="btn-cancelar-edicion" class="action-button secondary" style="display: none;">Cancelar Edición</button>
+                            <button type="submit" id="btn-guardar-producto" class="action-button">Guardar Producto</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- VISTA 3: CONTROL DE STOCK -->
+            <section id="view-stock" class="admin-view">
+                <div class="view-header">
+                    <h2>Control de Stock / Estados</h2>
+                    <p>Actualiza rápidamente la disponibilidad de los productos.</p>
+                </div>
+                
+                <!-- Barra de Filtros y Búsqueda para Stock -->
+                <div class="admin-filter-bar" style="margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="material-symbols-outlined" style="color: var(--z-text-secondary); font-size: 20px;">filter_list</span>
+                        <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--z-text-secondary); text-transform: uppercase;">Stock:</span>
+                    </div>
+                    
+                    <div class="admin-search-container" style="position: relative; flex: 1; min-width: 200px; max-width: 300px;">
+                        <span class="material-symbols-outlined" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 18px; color: var(--z-text-secondary); pointer-events: none;">search</span>
+                        <input type="text" id="search-stock" class="admin-input" placeholder="Buscar producto o tipo..." style="padding-left: 38px; margin-bottom: 0; height: 46px;">
+                    </div>
+                    
+                    <select id="filter-tipo-stock" class="admin-input admin-select" style="max-width: 200px; margin-bottom: 0;">
+                        <option value="todos">Todos los Tipos</option>
+                    </select>
+                    
+                    <select id="sort-stock" class="admin-input admin-select" style="max-width: 200px; margin-bottom: 0;">
+                        <option value="default">Ordenar por...</option>
+                        <option value="name-asc">Nombre (A-Z)</option>
+                        <option value="name-desc">Nombre (Z-A)</option>
+                        <option value="price-asc">Precio (Menor a Mayor)</option>
+                        <option value="price-desc">Precio (Mayor a Menor)</option>
+                    </select>
+                </div>
+                
+                <div class="stock-grid" id="stock-container">
+                    <!-- Inyectado via JS -->
+                </div>
+            </section>
+            
+            <!-- VISTA 3.5: NOTIFICACIONES -->
+            <section id="view-notificaciones" class="admin-view">
+                <div class="view-header">
+                    <h2>Centro de Notificaciones</h2>
+                    <p>Envía avisos o encuestas en tiempo real al catálogo público.</p>
+                </div>
+                
+                <div class="bento-cell" style="padding: 32px; max-width: 600px;">
+                    <form id="form-notificaciones">
+                        <div class="form-group">
+                            <label>Título de la Notificación</label>
+                            <input type="text" id="notif-titulo" class="admin-input" placeholder="Ej: ¡Nueva Colección!" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Mensaje Corto</label>
+                            <textarea id="notif-mensaje" class="admin-input admin-textarea" placeholder="Ej: Acabamos de subir la colección de Anime, revísala ahora." required style="min-height: 80px;"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Link Opcional (URL)</label>
+                            <input type="url" id="notif-link" class="admin-input" placeholder="https://forms.gle/tu-encuesta">
+                        </div>
+                        <div class="form-group">
+                            <label>Texto del Link</label>
+                            <input type="text" id="notif-link-texto" class="admin-input" placeholder="Ej: Responder Encuesta">
+                        </div>
+                        <div style="margin-top: 24px; display: flex; justify-content: flex-end;">
+                            <button type="submit" class="action-button">
+                                <span class="material-symbols-outlined" style="margin-right: 8px;">send</span>
+                                Enviar Notificación
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+            
+            <!-- VISTA 4: CONFIGURACIÓN / PERSONALIZACIÓN -->
+            <section id="view-config" class="admin-view">
+                <div class="view-header">
+                    <h2>Personalización del Catálogo</h2>
+                    <p>Modifica colores y estilos que se reflejarán en el sitio público.</p>
+                </div>
+                
+                <div class="personalization-grid">
+                    <!-- Caja 1: Color de Acento -->
+                    <div class="bento-cell" style="padding: 32px; min-height: 280px;">
+                        <h3 style="font-family: var(--z-font-display); font-size: 20px; margin-bottom: 16px;">Color de Acento & Estado</h3>
+                        <p style="color: var(--z-text-secondary); font-size: 14px; margin-bottom: 24px;">
+                            Selecciona uno de los siguientes colores fuertes para cambiar el color de acento y gradiente en el catálogo público. El cambio se guarda automáticamente.
+                        </p>
+                        
+                        <div class="color-picker-container" id="color-picker" style="margin-top: 16px;">
+                            <!-- Swatches inyectados via JS -->
+                        </div>
+                    </div>
+                    
+                    <!-- Caja 2: Intensidad de Desenfoque -->
+                    <div class="bento-cell" style="padding: 32px; min-height: 280px; display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box;">
+                        <div>
+                            <h3 style="font-family: var(--z-font-display); font-size: 20px; margin-bottom: 16px;">Intensidad de Desenfoque (Glassmorphism)</h3>
+                            <p style="color: var(--z-text-secondary); font-size: 14px; margin-bottom: 24px;">
+                                Elige qué tan pronunciado debe ser el efecto translúcido del vidrio en el catálogo público. El cambio se guarda automáticamente.
+                            </p>
+                        </div>
+                        <select id="config-blur" class="admin-input admin-select" style="max-width: 100%; margin-bottom: 0; height: 46px;">
+                            <option value="10px">Sutil (10px)</option>
+                            <option value="20px">Medio / Balanceado (20px)</option>
+                            <option value="35px">Intenso / Profundo (35px)</option>
+                        </select>
+                    </div>
+
+                    <!-- Caja 3: Orden de las Secciones -->
+                    <div class="bento-cell" style="padding: 32px; min-height: 280px; box-sizing: border-box;">
+                        <h3 style="font-family: var(--z-font-display); font-size: 20px; margin-bottom: 16px;">Orden de Secciones</h3>
+                        <p style="color: var(--z-text-secondary); font-size: 14px; margin-bottom: 16px;">
+                            Configura el orden de las colecciones en el catálogo público. Si se desactiva, se ordenarán cronológicamente de la más nueva a la más antigua.
+                        </p>
+                        <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="config-custom-sections-enable" style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--z-crimson);">
+                            <label for="config-custom-sections-enable" style="font-size: 14px; font-weight: 600; cursor: pointer; user-select: none;">Habilitar orden personalizado</label>
+                        </div>
+                        <div id="section-order-container" style="display: flex; flex-direction: column; gap: 10px;">
+                            <!-- Inyectado via JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VISTA 5: MÉTRIQUES / ESTADÍSTICAS -->
+            <section id="view-metricas" class="admin-view">
+                <div class="view-header">
+                    <h2>Métricas de Rendimiento</h2>
+                    <p>Monitorea las visitas y los productos más guardados en favoritos por tus clientes.</p>
+                </div>
+                
+                <!-- KPI Cards Grid -->
+                <div class="kpi-grid">
+                    <div class="bento-cell kpi-card">
+                        <span class="kpi-title">Visitas Totales (7d)</span>
+                        <span class="kpi-value" id="kpi-views">0</span>
+                        <span class="kpi-subtext">Tráfico acumulado del catálogo</span>
+                    </div>
+                    <div class="bento-cell kpi-card">
+                        <span class="kpi-title">Interacciones Favoritos</span>
+                        <span class="kpi-value" id="kpi-favorites">0</span>
+                        <span class="kpi-subtext">Total de clics en guardar</span>
+                    </div>
+                    <div class="bento-cell kpi-card">
+                        <span class="kpi-title">Clics en WhatsApp</span>
+                        <span class="kpi-value" id="kpi-wsp-clicks">0</span>
+                        <span class="kpi-subtext">Intenciones de compra directas</span>
+                    </div>
+                    <div class="bento-cell kpi-card">
+                        <span class="kpi-title">Tasa de Conversión</span>
+                        <span class="kpi-value" id="kpi-conversion-rate">0.0%</span>
+                        <span class="kpi-subtext">Clics WhatsApp vs Visitas</span>
+                    </div>
+                    <div class="bento-cell kpi-card">
+                        <span class="kpi-title">Producto Estrella</span>
+                        <span class="kpi-value" id="kpi-star-product" style="font-size: 18px; font-weight: 700; height: 38px; display: flex; align-items: center; justify-content: center; text-transform: uppercase; text-align: center; color: var(--z-crimson);">Ninguno</span>
+                        <span class="kpi-subtext">El artículo más popular</span>
+                    </div>
+                </div>
+                
+                <!-- Charts Grid -->
+                <div class="charts-grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+                    <div class="bento-cell chart-container">
+                        <h3 class="chart-title">Vistas de la Página</h3>
+                        <div style="position: relative; width: 100%; height: 300px;">
+                            <canvas id="chart-views"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="bento-cell chart-container">
+                        <h3 class="chart-title">Productos en Favoritos</h3>
+                        <div style="position: relative; width: 100%; height: 300px;">
+                            <canvas id="chart-favorites"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="bento-cell chart-container">
+                        <h3 class="chart-title">Clics en WhatsApp por Producto</h3>
+                        <div style="position: relative; width: 100%; height: 300px;">
+                            <canvas id="chart-wsp-clicks"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Entrance Loader -->
+    <div id="entrance-loader">
+        <div class="entrance-logo">ZAIREN <span class="entrance-logo-jp">ザイレン</span></div>
+    </div>
+
+</body>
+</html>

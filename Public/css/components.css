@@ -1,0 +1,85 @@
+/* === Zairen Lab — Components === */
+/* Glassmorphism cards, buttons, and panel components */
+
+.bento-card {
+  background: var(--z-glass-bg);
+  backdrop-filter: var(--z-glass-blur);
+  -webkit-backdrop-filter: var(--z-glass-blur);
+  border: 1px solid var(--z-glass-border);
+  border-radius: var(--z-radius);
+  box-shadow: var(--z-shadow-card);
+  overflow: hidden;
+  position: relative;
+  transition: transform var(--z-duration) var(--z-ease), box-shadow var(--z-duration) var(--z-ease);
+}
+
+.bento-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--z-shadow-float);
+}
+
+.section-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 48px 24px 24px;
+}
+
+.section-row h2 {
+  font-family: var(--z-font-display);
+  font-size: 32px;
+  color: var(--z-text-primary);
+  white-space: nowrap;
+}
+
+.section-line {
+  flex-grow: 1;
+  height: 2px;
+  background: linear-gradient(90deg, var(--z-crimson) 0%, transparent 100%);
+  border-radius: var(--z-radius-pill);
+}
+
+.action-button {
+  background-color: var(--z-crimson);
+  color: #fff;
+  padding: 16px 32px;
+  border-radius: var(--z-radius-pill);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all var(--z-duration) var(--z-ease);
+  box-shadow: var(--z-shadow-glow);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.action-button:hover {
+  background-color: var(--z-crimson-light);
+  transform: scale(1.02);
+  box-shadow: 0 0 40px rgba(220, 20, 60, 0.4);
+}
+
+.action-button:active {
+  transform: scale(0.98);
+}
+
+.action-button.secondary {
+  background-color: transparent;
+  border: 1px solid var(--z-border);
+  box-shadow: none;
+  color: var(--z-text-primary);
+}
+
+.action-button.secondary:hover {
+  background-color: var(--z-surface-alt);
+  border-color: var(--z-text-secondary);
+}
+
+.glass-panel {
+  background: var(--z-glass-bg);
+  backdrop-filter: var(--z-glass-blur-deep);
+  -webkit-backdrop-filter: var(--z-glass-blur-deep);
+  border: 1px solid var(--z-glass-border);
+}

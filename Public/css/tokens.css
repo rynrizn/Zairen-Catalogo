@@ -1,0 +1,89 @@
+/* === ZAIREN LAB — Design Tokens === */
+/* Modo Claro / Oscuro via data-theme attribute */
+
+:root,
+[data-theme="light"] {
+  /* === SURFACES === */
+  --z-black:          #0A0A0A;
+  --z-dark:           #141414;
+  --z-surface:        transparent;
+  --z-surface-alt:    rgba(235, 230, 222, 0.45);
+  --z-surface-card:   rgba(255, 255, 255, 0.65);
+  --z-border:         rgba(0, 0, 0, 0.10);
+  --z-muted:          #76767b;
+  --z-text-secondary: #48484a;
+  --z-text-primary:   #0a0a0b;
+  --z-white:          #F5F5F5;
+  --z-on-primary:     #ffffff;
+
+  /* === NAVBAR === */
+  --z-nav-bg:         rgba(255, 255, 255, 0.75);
+  --z-nav-text:       #0a0a0b;
+  --z-nav-border:     rgba(0, 0, 0, 0.08);
+
+  /* === ACENTO CARMESÍ === */
+  --z-crimson:        #DC143C;
+  --z-crimson-dark:   #A01030;
+  --z-crimson-light:  #FF2D55;
+  --z-crimson-glow:   rgba(220, 20, 60, 0.15);
+
+  /* === GLASSMORPHISM === */
+  --z-glass-bg:       rgba(255, 255, 255, 0.72);
+  --z-glass-border:   rgba(0, 0, 0, 0.06);
+  --z-glass-blur:     blur(20px);
+  --z-glass-blur-deep: blur(40px);
+
+  /* === OVERLAY === */
+  --z-overlay-bg:     rgba(0, 0, 0, 0.5);
+
+  /* === BORDES Y RADIOS === */
+  --z-radius:         16px;
+  --z-radius-sm:      8px;
+  --z-radius-lg:      24px;
+  --z-radius-pill:    9999px;
+
+  /* === TIPOGRAFÍA === */
+  --z-font-body:      'Hanken Grotesk', 'Inter', sans-serif;
+  --z-font-display:   'DotGothic16', monospace;
+
+  /* === SOMBRAS === */
+  --z-shadow-card:    0 4px 24px rgba(0, 0, 0, 0.06);
+  --z-shadow-glow:    0 0 30px rgba(220, 20, 60, 0.12);
+  --z-shadow-float:   0 20px 40px rgba(0, 0, 0, 0.1);
+  --z-shadow-hover:   0 12px 32px rgba(0, 0, 0, 0.12);
+
+  /* === TRANSICIONES === */
+  --z-ease:           cubic-bezier(0.4, 0, 0.2, 1);
+  --z-duration:       300ms;
+  --z-duration-slow:  500ms;
+}
+
+[data-theme="dark"] {
+  /* === SURFACES === */
+  --z-surface:        transparent;
+  --z-surface-alt:    rgba(30, 30, 34, 0.45);
+  --z-surface-card:   rgba(24, 24, 28, 0.65);
+  --z-border:         rgba(255, 255, 255, 0.08);
+  --z-muted:          #666666;
+  --z-text-secondary: #aaaaaa;
+  --z-text-primary:   #E8E8E8;
+  --z-on-primary:     #0a0a0a;
+
+  /* === NAVBAR === */
+  --z-nav-bg:         rgba(10, 10, 10, 0.85);
+  --z-nav-text:       #E8E8E8;
+  --z-nav-border:     rgba(255, 255, 255, 0.08);
+
+  /* === GLASSMORPHISM === */
+  --z-glass-bg:       rgba(26, 26, 26, 0.72);
+  --z-glass-border:   rgba(255, 255, 255, 0.06);
+
+  /* === OVERLAY === */
+  --z-overlay-bg:     rgba(0, 0, 0, 0.75);
+
+  /* === SOMBRAS === */
+  --z-shadow-card:    0 4px 24px rgba(0, 0, 0, 0.4);
+  --z-shadow-glow:    0 0 30px rgba(220, 20, 60, 0.2);
+  --z-shadow-float:   0 20px 40px rgba(0, 0, 0, 0.6);
+  --z-shadow-hover:   0 12px 32px rgba(0, 0, 0, 0.5);
+}

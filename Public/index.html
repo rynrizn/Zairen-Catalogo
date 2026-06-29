@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zairen Lab | Catálogo</title>
+    <meta name="description" content="Catálogo de productos Zairen Lab. Streetwear, anime y cultura pop con diseño minimalista japonés.">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+
+    <!-- Tailwind & Config -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="js/tailwind-config.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Hanken+Grotesk:wght@300;400;500;600;700&family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/tokens.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/catalog.css">
+    <link rel="stylesheet" href="css/detail.css">
+
+    <style>
+        :root {
+            /* ========================================================== */
+            /* EDITABLE STATUS COLOR:                                     */
+            /* Cambia este color para transmitir un estado en el catálogo  */
+            /* Ejemplos: #8B5CF6 (morado), #10B981 (oferta), #F59E0B (alerta) */
+            --z-color-status: #5C88B0;
+            /* ========================================================== */
+
+            /* Colores base del gradiente animado — Modo Claro */
+            /* Color 1: Mizuasagi (Verde turquesa / azul verdoso zen, suave y elegante) */
+            --z-mesh-c1: 80, 155, 149;
+            /* Color 2: Ai-iro (Azul índigo / pizarra sereno) */
+            --z-mesh-c2: 95, 114, 133;
+            /* Color de fondo base: Washi (Papel japonés crema suave) */
+            --z-mesh-base: #F6F4EE;
+
+            /* Glassmorphism Dinámico */
+            --z-glass-blur-val: 20px;
+            --z-glass-blur: blur(var(--z-glass-blur-val));
+            --z-glass-blur-deep: blur(calc(var(--z-glass-blur-val) * 2));
+        }
+        [data-theme="dark"] {
+            /* Colores base del gradiente animado — Modo Oscuro */
+            --z-mesh-c1: 60, 135, 130;
+            --z-mesh-c2: 78, 97, 115;
+            /* Fondo base: Sumi-iro (Tinta negra de carbón / Zen profundo) */
+            --z-mesh-base: #0E0F11;
+        }
+
+        /* === Material Icons === */
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* === Smooth Theme Transition === */
+        body,
+        body *:not(img):not(video):not(svg):not(path):not(canvas) {
+            transition: background-color 0.4s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* === Scrollbar === */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--z-muted); border-radius: 10px; opacity: 0.3; }
+
+        /* ================================================ */
+        /* BACKGROUND — Animated Mesh Gradient Canvas       */
+        /* ================================================ */
+        body {
+            background-color: var(--z-mesh-base);
+            position: relative;
+            overflow-x: hidden;
+            transition: background-color 0.8s ease;
+        }
+        #mesh-canvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 1;
+        }
+        /* Subtle grain/noise overlay */
+        .bg-noise {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+            background-size: 200px 200px;
+        }
+        [data-theme="dark"] .bg-noise { opacity: 0.05; }
+
+        /* ================================================ */
+        /* FILTER BAR                                       */
+        /* ================================================ */
+        #filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 16px 0;
+            align-items: center;
+        }
+        .filter-btn {
+            padding: 8px 20px;
+            border-radius: var(--z-radius-pill);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            border: 1px solid rgba(255,255,255,0.35);
+            background: rgba(255,255,255,0.30);
+            backdrop-filter: blur(calc(var(--z-glass-blur-val, 20px) * 0.8)) saturate(1.6);
+            -webkit-backdrop-filter: blur(calc(var(--z-glass-blur-val, 20px) * 0.8)) saturate(1.6);
+            color: var(--z-text-primary);
+            cursor: pointer;
+            transition: all 0.3s var(--z-ease);
+            white-space: nowrap;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        [data-theme="dark"] .filter-btn {
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(20, 20, 25, 0.40);
+        }
+        .filter-btn:hover {
+            border-color: var(--z-crimson);
+            color: var(--z-crimson);
+            transform: translateY(-1px);
+            background: rgba(255,255,255,0.50);
+        }
+        [data-theme="dark"] .filter-btn:hover {
+            background: rgba(40, 40, 45, 0.50);
+        }
+        .filter-btn.active {
+            background: var(--z-color-status);
+            color: #fff;
+            border-color: var(--z-color-status);
+            box-shadow: 0 0 15px var(--z-color-status);
+        }
+
+        /* ================================================ */
+        /* COLLAPSIBLE SECTIONS                             */
+        /* ================================================ */
+        .section-collapsible { margin-bottom: 32px; }
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 28px;
+            border-radius: var(--z-radius);
+            background: rgba(255,255,255,0.40);
+            backdrop-filter: blur(var(--z-glass-blur-val, 20px)) saturate(1.6);
+            -webkit-backdrop-filter: blur(var(--z-glass-blur-val, 20px)) saturate(1.6);
+            border: 1px solid rgba(255,255,255,0.45);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.3s var(--z-ease);
+        }
+        [data-theme="dark"] .section-header {
+            background: rgba(20, 20, 25, 0.40);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.30);
+        }
+        .section-header:hover {
+            border-color: var(--z-color-status);
+            box-shadow: var(--z-shadow-card);
+        }
+        .section-header h2 {
+            font-family: 'DotGothic16', monospace;
+            font-size: 20px;
+            color: var(--z-text-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
+        .section-header .section-toggle-icon {
+            transition: transform 0.4s var(--z-ease);
+            color: var(--z-text-secondary);
+        }
+        .section-header.open .section-toggle-icon { transform: rotate(180deg); }
+        .section-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease, padding 0.4s ease;
+            opacity: 0;
+            padding-top: 0;
+        }
+        .section-content.open {
+            max-height: 5000px;
+            opacity: 1;
+            padding-top: 20px;
+            overflow: visible; /* Prevent clipping of product card hover shadows */
+        }
+
+        /* ================================================ */
+        /* PRODUCT GRID                                     */
+        /* ================================================ */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+        @media (max-width: 1200px) {
+            .products-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .products-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 480px) {
+            .products-grid { grid-template-columns: 1fr; gap: 16px; }
+        }
+
+        /* ================================================ */
+        /* ZEN PRODUCT CARD — Image-first, frosted overlay  */
+        /* ================================================ */
+        .product-card {
+            border-radius: var(--z-radius);
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+            aspect-ratio: 3 / 4;
+            background: var(--z-surface-alt);
+            border: 1px solid var(--z-glass-border);
+            -webkit-mask-image: -webkit-radial-gradient(white, black);
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+                        box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+                        border-color 0.4s ease;
+        }
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--z-shadow-hover);
+            border-color: var(--z-color-status);
+            z-index: 10;
+        }
+        /* Full-bleed image */
+        .product-card .card-image-wrap {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            border-radius: inherit;
+            overflow: hidden;
+        }
+        .product-card .card-image-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.7s var(--z-ease);
+        }
+        .product-card:hover .card-image-wrap img {
+            transform: scale(1.06);
+        }
+        /* Estado badge */
+        .product-card .card-badge {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            padding: 5px 14px;
+            border-radius: var(--z-radius-pill);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: #fff;
+            z-index: 10;
+            text-transform: uppercase;
+        }
+        /* Frosted glass overlay at bottom — zen fade */
+        .product-card .card-info-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 5;
+            padding: 28px 18px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            /* Gradient fade + blur - more opaque for light mode legibility */
+            background: linear-gradient(
+                to top,
+                rgba(255, 255, 255, 0.94) 0%,
+                rgba(255, 255, 255, 0.75) 55%,
+                rgba(255, 255, 255, 0.0) 100%
+            );
+            backdrop-filter: blur(var(--z-glass-blur-val, 20px)) saturate(1.8);
+            -webkit-backdrop-filter: blur(var(--z-glass-blur-val, 20px)) saturate(1.8);
+            border-top: 1px solid var(--z-glass-border);
+            border-bottom-left-radius: inherit;
+            border-bottom-right-radius: inherit;
+            transition: all 0.4s var(--z-ease);
+        }
+        [data-theme="dark"] .product-card .card-info-overlay {
+            background: linear-gradient(
+                to top,
+                rgba(10,10,10,0.92) 0%,
+                rgba(10,10,10,0.65) 50%,
+                rgba(10,10,10,0.0) 100%
+            );
+            border-top: 1px solid var(--z-glass-border);
+        }
+        .product-card .card-name {
+            font-family: 'Hanken Grotesk', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: #0a0a0b !important;
+            line-height: 1.3;
+        }
+        [data-theme="dark"] .product-card .card-name {
+            color: #e8e8e8 !important;
+        }
+        .product-card .card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .product-card .card-price {
+            font-family: 'DotGothic16', monospace;
+            font-size: 16px;
+            font-weight: 700;
+            color: #bc002d !important; /* Premium Zairen crimson for high readability in light mode */
+        }
+        [data-theme="dark"] .product-card .card-price {
+            color: #e8e8e8 !important;
+        }
+        .product-card .card-type {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: #48484a !important;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        [data-theme="dark"] .product-card .card-type {
+            color: #999999 !important;
+        }
+        .product-card .card-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .product-card .card-btn {
+            flex: 1;
+            padding: 9px 12px;
+            border-radius: var(--z-radius-pill);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            text-align: center;
+            transition: all 0.3s var(--z-ease);
+            cursor: pointer;
+            border: none;
+        }
+        .product-card .card-btn.btn-detail {
+            background: var(--z-text-primary);
+            color: var(--z-on-primary);
+        }
+        .product-card .card-btn.btn-detail:hover {
+            background: var(--z-crimson);
+            color: #fff;
+        }
+        .product-card .card-btn.btn-wsp {
+            background: rgba(37,211,102,0.9);
+            color: #fff;
+            backdrop-filter: blur(8px);
+        }
+        .product-card .card-btn.btn-wsp:hover {
+            background: #128C7E;
+        }
+        .product-card .card-btn:disabled,
+        .product-card .card-btn.btn-disabled {
+            background: var(--z-muted);
+            color: var(--z-surface-alt);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        /* ================================================ */
+        /* MODALS                                           */
+        /* ================================================ */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 300;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--z-overlay-bg);
+            backdrop-filter: blur(calc(var(--z-glass-blur-val, 20px) * 0.6));
+            -webkit-backdrop-filter: blur(calc(var(--z-glass-blur-val, 20px) * 0.6));
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.35s ease, visibility 0.35s ease;
+        }
+        .modal-overlay.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-box {
+            background: var(--z-surface-card);
+            backdrop-filter: var(--z-glass-blur-deep);
+            -webkit-backdrop-filter: var(--z-glass-blur-deep);
+            border: 1px solid var(--z-glass-border);
+            border-radius: var(--z-radius-lg);
+            box-shadow: var(--z-shadow-float);
+            padding: 40px;
+            max-width: 480px;
+            width: 90%;
+            text-align: center;
+            transform: translateY(20px) scale(0.95);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .modal-overlay.visible .modal-box {
+            transform: translateY(0) scale(1);
+        }
+        .modal-box h3 {
+            font-family: 'Hanken Grotesk', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--z-text-primary);
+            margin-bottom: 16px;
+        }
+        .modal-box .qr-img {
+            border-radius: var(--z-radius);
+            margin: 12px auto 24px;
+            width: 240px;
+            height: 240px;
+            background: #fff;
+            padding: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .modal-box .copy-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            border-radius: var(--z-radius-pill);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            background: var(--z-text-primary);
+            color: var(--z-on-primary);
+            cursor: pointer;
+            transition: all 0.3s var(--z-ease);
+        }
+        .modal-box .copy-btn:hover {
+            background: var(--z-crimson);
+            color: #fff;
+        }
+        .modal-close-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            color: var(--z-text-secondary);
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        .modal-close-btn:hover { color: var(--z-crimson); }
+
+        /* === Fade-in animation for cards === */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeInUp 0.5s ease forwards;
+            opacity: 0;
+        }
+
+        /* === Responsive Navbar === */
+        @media (max-width: 640px) {
+            #main-nav { padding: 12px 16px !important; gap: 8px; }
+            #main-nav .brand-text { font-size: 16px !important; }
+            #main-nav .brand-jp { display: none; }
+        }
+
+        /* === Clean Fav Button === */
+        .fav-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 15;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease, color 0.3s ease, filter 0.3s ease;
+            filter: drop-shadow(0 1.5px 3.5px rgba(0,0,0,0.6));
+            /* Base color depending on theme */
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .fav-btn span {
+            font-variation-settings: 'FILL' 1 !important; /* Always filled */
+        }
+        .fav-btn:hover {
+            transform: scale(1.15);
+            color: rgba(255, 255, 255, 1);
+        }
+        .fav-btn.is-active, .fav-btn.is-active:hover {
+            color: var(--z-crimson) !important;
+            filter: drop-shadow(0 0 8px rgba(220, 20, 60, 0.5)) drop-shadow(0 1px 3px rgba(0,0,0,0.4)) !important;
+        }
+
+        /* === NOTHING-STYLE JAPANESE LOADER === */
+        .nothing-loader {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            padding: 48px 20px;
+            font-family: 'JetBrains Mono', 'DotGothic16', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--z-text-primary);
+        }
+        .nothing-spinner {
+            width: 48px;
+            height: 48px;
+            border: 3px dotted var(--z-text-primary);
+            border-radius: 50%;
+            animation: spin 3s linear infinite;
+        }
+        .nothing-text {
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .nothing-dots::after {
+            content: '';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+
+        /* === ENTRANCE LOADER === */
+        #entrance-loader {
+            position: fixed;
+            inset: 0;
+            background: var(--z-mesh-base, #F6F4EE);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 90; /* Navbar stays on top with 100 */
+            transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1), 
+                        opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+            opacity: 1;
+        }
+        [data-theme="dark"] #entrance-loader {
+            background: #0E0F11;
+        }
+        .entrance-logo {
+            font-family: 'Noto Sans JP', 'Inter', sans-serif;
+            font-weight: 300;
+            font-size: clamp(32px, 6vw, 64px);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            background: linear-gradient(
+                90deg,
+                var(--z-text-primary) 0%,
+                var(--z-text-primary) 35%,
+                var(--z-crimson) 50%,
+                var(--z-text-primary) 65%,
+                var(--z-text-primary) 100%
+            );
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmerSweep 3s linear infinite;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+        }
+        .entrance-logo-jp {
+            font-family: 'Noto Sans JP', sans-serif;
+            font-weight: 300;
+            font-size: clamp(24px, 5vw, 48px);
+            letter-spacing: 0.05em;
+            opacity: 0.85;
+            background: inherit;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        @keyframes shimmerSweep {
+            0% { background-position: 200% center; }
+            100% { background-position: -200% center; }
+        }
+    </style>
+
+    <!-- Theme (no-flash) -->
+    <script src="js/theme.js"></script>
+    <script>
+        // Load dynamic mesh color from CatalogStorage directly to prevent flash
+        (function() {
+            try {
+                const stored = localStorage.getItem('zairen-catalog-draft') || localStorage.getItem('zairen-catalog');
+                if (stored) {
+                    const data = JSON.parse(stored);
+                    if (data.configuracion) {
+                        if (data.configuracion.colorEstado) {
+                            document.documentElement.style.setProperty('--z-color-status', data.configuracion.colorEstado);
+                        }
+                        if (data.configuracion.blurIntensity) {
+                            document.documentElement.style.setProperty('--z-glass-blur-val', data.configuracion.blurIntensity);
+                        }
+                    }
+                }
+            } catch(e) {}
+        })();
+    </script>
+
+    <!-- JS (deferred) -->
+    <script src="js/storage.js" defer></script>
+    <script src="js/whatsapp.js" defer></script>
+    <script src="js/detail.js" defer></script>
+    <script src="js/catalog.js" defer></script>
+</head>
+<body style="background-color: var(--z-surface); color: var(--z-text-primary); font-family: var(--z-font-body); min-height: 100vh;">
+
+    <!-- ============================== -->
+    <!-- Background Decoration          -->
+    <!-- ============================== -->
+    <!-- Animated Mesh Gradient Canvas -->
+    <canvas id="mesh-canvas"></canvas>
+    <div class="bg-noise"></div>
+
+    <script>
+    // ============================================================
+    // ZAIREN LAB — Animated Mesh Gradient (Aurora / Apple style)
+    // Reads CSS custom properties for colors so theme changes work
+    // ============================================================
+    (function() {
+        const canvas = document.getElementById('mesh-canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Resize canvas to fill screen
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Read theme colors from CSS vars
+        function getColors() {
+            const style = getComputedStyle(document.documentElement);
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            const c1 = style.getPropertyValue('--z-mesh-c1').trim() || '80,155,149';
+            const c2 = style.getPropertyValue('--z-mesh-c2').trim() || '95,114,133';
+            const statusRaw = style.getPropertyValue('--z-color-status').trim() || '#8B9BB4';
+            // Convert hex status color to rgb
+            const hex = statusRaw.replace('#','');
+            const r = parseInt(hex.substring(0,2),16);
+            const g = parseInt(hex.substring(2,4),16);
+            const b = parseInt(hex.substring(4,6),16);
+            const c3 = `${r},${g},${b}`;
+            const base = style.getPropertyValue('--z-mesh-base').trim() || (isDark ? '#0E0F11' : '#F6F4EE');
+            return { c1, c2, c3, base, isDark };
+        }
+
+        // Blobs definition — each has position, size, speed, phase offset
+        const blobs = [
+            { xRatio: 0.75, yRatio: 0.20, rRatio: 0.55, speedX: 0.00018, speedY: 0.00013, phaseX: 0,    phaseY: 0,    colorIndex: 0 },
+            { xRatio: 0.20, yRatio: 0.70, rRatio: 0.60, speedX: 0.00014, speedY: 0.00020, phaseX: 2.1,  phaseY: 1.0,  colorIndex: 1 },
+            { xRatio: 0.55, yRatio: 0.50, rRatio: 0.45, speedX: 0.00022, speedY: 0.00015, phaseX: 4.2,  phaseY: 3.5,  colorIndex: 2 },
+            { xRatio: 0.10, yRatio: 0.15, rRatio: 0.40, speedX: 0.00012, speedY: 0.00017, phaseX: 1.5,  phaseY: 5.0,  colorIndex: 0 },
+            { xRatio: 0.85, yRatio: 0.80, rRatio: 0.38, speedX: 0.00019, speedY: 0.00011, phaseX: 3.3,  phaseY: 2.2,  colorIndex: 1 },
+        ];
+
+        let t = 0;
+        let animId;
+        let currentBase = '';
+        let targetColors = getColors();
+
+        function hexToRgb(hex) {
+            const h = hex.replace('#','');
+            return [
+                parseInt(h.substring(0,2),16),
+                parseInt(h.substring(2,4),16),
+                parseInt(h.substring(4,6),16)
+            ];
+        }
+
+        function draw() {
+            const W = canvas.width;
+            const H = canvas.height;
+            const colors = getColors();
+
+            // Fill background base
+            ctx.fillStyle = colors.base;
+            ctx.fillRect(0, 0, W, H);
+
+            const colorMap = [colors.c1, colors.c2, colors.c3];
+            const alpha = colors.isDark ? 0.65 : 0.70;
+
+            blobs.forEach(blob => {
+                // Smooth lemniscate-like movement
+                const cx = (blob.xRatio + 0.22 * Math.sin(t * blob.speedX * Math.PI * 2 + blob.phaseX)) * W;
+                const cy = (blob.yRatio + 0.18 * Math.cos(t * blob.speedY * Math.PI * 2 + blob.phaseY)) * H;
+                const r  = blob.rRatio * Math.min(W, H);
+
+                const rgb = colorMap[blob.colorIndex];
+                const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+                grad.addColorStop(0,   `rgba(${rgb}, ${alpha})`);
+                grad.addColorStop(0.4, `rgba(${rgb}, ${alpha * 0.6})`);
+                grad.addColorStop(1,   `rgba(${rgb}, 0)`);
+
+                ctx.globalCompositeOperation = colors.isDark ? 'lighter' : 'multiply';
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.arc(cx, cy, r, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            ctx.globalCompositeOperation = 'source-over';
+            t++;
+            animId = requestAnimationFrame(draw);
+        }
+
+        draw();
+
+        // Update on theme toggle
+        const observer = new MutationObserver(() => {
+            const c = getColors();
+            document.body.style.backgroundColor = c.base;
+        });
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    })();
+    </script>
+
+    <!-- ============================== -->
+    <!-- Floating Pill NavBar           -->
+    <!-- ============================== -->
+    <nav id="main-nav" style="
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        gap: 28px;
+        padding: 8px 40px;
+        background: var(--z-nav-bg);
+        backdrop-filter: blur(calc(var(--z-glass-blur-val, 20px) * 1.2));
+        -webkit-backdrop-filter: blur(calc(var(--z-glass-blur-val, 20px) * 1.2));
+        border: 1px solid var(--z-nav-border);
+        border-radius: 9999px;
+        box-shadow: var(--z-shadow-card);
+        width: fit-content;
+        max-width: calc(100% - 32px);
+    ">
+        <a href="#" style="display:flex; align-items:center; gap:12px; text-decoration:none; white-space:nowrap;">
+            <span class="brand-text" style="font-family:'DotGothic16',monospace; font-size:18px; font-weight:700; letter-spacing:0.15em; color:var(--z-text-primary); text-transform:uppercase;">ZAIREN</span>
+            <span style="width:1px; height:16px; background:var(--z-border); display:inline-block;"></span>
+            <span class="brand-jp" style="font-family:'DotGothic16',monospace; font-size:18px; color:var(--z-text-primary);">ザイレン</span>
+            <span class="preview-badge" style="display:none; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--z-crimson); padding-left:8px; letter-spacing:0.1em;">PREVIEW</span>
+        </a>
+        <span style="width:1px; height:20px; background:var(--z-border); display:inline-block;"></span>
+        <div style="display:flex; align-items:center; gap:6px; position:relative;">
+            <!-- Buscador en Dropdown -->
+            <div id="nav-search-container" style="position:relative; display:flex; align-items:center;">
+                <button id="nav-search-btn" title="Buscar" style="
+                    display:flex; align-items:center; justify-content:center;
+                    width:36px; height:36px; border-radius:50%;
+                    background:transparent; border:none; cursor:pointer;
+                    color:var(--z-text-secondary); transition: all 0.3s ease;
+                " onmouseover="this.style.color='var(--z-crimson)'; this.style.background='var(--z-surface-alt)'"
+                   onmouseout="this.style.color='var(--z-text-secondary)'; this.style.background='transparent'">
+                    <span class="material-symbols-outlined" style="font-size:20px;">search</span>
+                </button>
+            </div>
+            <button id="nav-favs-btn" title="Ver Favoritos" style="
+                display:flex; align-items:center; justify-content:center; position:relative;
+                width:36px; height:36px; border-radius:50%;
+                background:transparent; border:none; cursor:pointer;
+                color:var(--z-text-secondary); transition: all 0.3s ease;
+            " onmouseover="this.style.color='var(--z-crimson)'; this.style.background='var(--z-surface-alt)'"
+               onmouseout="this.style.color='var(--z-text-secondary)'; this.style.background='transparent'">
+                <span class="material-symbols-outlined" style="font-size:20px; font-variation-settings: 'FILL' 0;">favorite</span>
+                <span id="favs-badge" style="display:none; position:absolute; top:4px; right:4px; min-width:14px; height:14px; padding:0 3px; background:var(--z-crimson); color:#fff; border-radius:50%; font-size:8px; font-weight:700; font-family:'JetBrains Mono',monospace; align-items:center; justify-content:center; line-height:1;">0</span>
+            </button>
+            <button id="nav-notif-btn" title="Notificaciones" style="
+                display:flex; align-items:center; justify-content:center; position:relative;
+                width:36px; height:36px; border-radius:50%;
+                background:transparent; border:none; cursor:pointer;
+                color:var(--z-text-secondary); transition: all 0.3s ease;
+            " onmouseover="this.style.color='var(--z-crimson)'; this.style.background='var(--z-surface-alt)'"
+               onmouseout="this.style.color='var(--z-text-secondary)'; this.style.background='transparent'">
+                <span class="material-symbols-outlined" style="font-size:20px;">notifications</span>
+                <span id="notif-badge" style="display:none; position:absolute; top:6px; right:8px; width:8px; height:8px; background:var(--z-crimson); border-radius:50%;"></span>
+            </button>
+            <div id="notif-dropdown" style="
+                display:none; position:absolute; top:48px; right:0; width:320px;
+                background:var(--z-surface-card); backdrop-filter:var(--z-glass-blur-deep); -webkit-backdrop-filter:var(--z-glass-blur-deep);
+                border:1px solid var(--z-glass-border); border-radius:var(--z-radius); box-shadow:var(--z-shadow-float);
+                padding:16px; z-index:200; cursor:default;
+            ">
+                <h4 style="font-family:'Hanken Grotesk',sans-serif; font-weight:700; font-size:14px; margin-bottom:12px; border-bottom:1px solid var(--z-border); padding-bottom:8px;">Notificaciones</h4>
+                <div id="notif-list" style="max-height:300px; overflow-y:auto; display:flex; flex-direction:column; gap:12px;">
+                    <div style="font-size:12px; color:var(--z-text-secondary); text-align:center; padding:10px;">No hay notificaciones nuevas</div>
+                </div>
+            </div>
+            <button id="nav-qr-btn" title="Compartir QR" style="
+                display:flex; align-items:center; justify-content:center;
+                width:36px; height:36px; border-radius:50%;
+                background:transparent; border:none; cursor:pointer;
+                color:var(--z-text-secondary); transition: all 0.3s ease;
+            " onmouseover="this.style.color='var(--z-crimson)'; this.style.background='var(--z-surface-alt)'"
+               onmouseout="this.style.color='var(--z-text-secondary)'; this.style.background='transparent'">
+                <span class="material-symbols-outlined" style="font-size:20px;">qr_code_2</span>
+            </button>
+            <button id="theme-toggle-btn" title="Cambiar tema" onclick="toggleTheme()" style="
+                display:flex; align-items:center; justify-content:center;
+                width:36px; height:36px; border-radius:50%;
+                background:transparent; border:none; cursor:pointer;
+                color:var(--z-text-secondary); transition: all 0.3s ease;
+            " onmouseover="this.style.color='var(--z-crimson)'; this.style.background='var(--z-surface-alt)'"
+               onmouseout="this.style.color='var(--z-text-secondary)'; this.style.background='transparent'">
+                <span id="theme-toggle-icon" class="material-symbols-outlined" style="font-size:20px;">dark_mode</span>
+            </button>
+        </div>
+        
+        <!-- Buscador Centrado debajo de la Navbar -->
+        <div id="search-dropdown" style="
+            display:none; position:absolute; top:calc(100% + 12px); left:50%; transform:translateX(-50%); width:280px;
+            background:var(--z-surface-card); backdrop-filter:var(--z-glass-blur-deep); -webkit-backdrop-filter:var(--z-glass-blur-deep);
+            border:1px solid var(--z-glass-border); border-radius:var(--z-radius); box-shadow:var(--z-shadow-float);
+            padding:12px; z-index:200; cursor:default;
+        ">
+            <div style="position:relative; display:flex; align-items:center; width:100%;">
+                <input type="text" id="nav-search-input" placeholder="Buscar..." style="
+                    width: 100%; height: 36px; padding: 0 32px 0 12px;
+                    background: var(--z-surface-alt); border: 1px solid var(--z-border);
+                    border-radius: var(--z-radius-sm); font-family: var(--z-font-body);
+                    font-size: 13px; color: var(--z-text-primary); outline: none;
+                ">
+                <span id="nav-search-clear-btn" class="material-symbols-outlined" style="
+                    display:none; position:absolute; right:10px; top:50%; transform:translateY(-50%);
+                    font-size:16px; color:var(--z-text-secondary); cursor:pointer; z-index:10;
+                " title="Limpiar búsqueda">close</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ============================== -->
+    <!-- Main Content Canvas            -->
+    <!-- ============================== -->
+    <main style="position:relative; z-index:2; padding-top:120px; padding-bottom:64px; max-width:1600px; margin:0 auto; padding-left:clamp(16px,3vw,48px); padding-right:clamp(16px,3vw,48px);">
+
+        <!-- Header -->
+        <header style="margin-bottom:40px; margin-top:16px;">
+            <h1 style="font-family:'Hanken Grotesk',sans-serif; font-size:clamp(28px,5vw,48px); font-weight:700; line-height:1.15; color:var(--z-text-primary); max-width:700px; letter-spacing:-0.02em;">
+                The evolution of form. Structured minimalism for the modern ecosystem.
+            </h1>
+            <p style="margin-top:16px; font-size:16px; color:var(--z-text-secondary); max-width:500px; line-height:1.6;">
+                Explora nuestras colecciones de streetwear, anime y cultura pop con diseño japonés minimalista.
+            </p>
+        </header>
+
+        <!-- Dynamic Filter Bar -->
+        <div id="filter-bar"></div>
+
+        <!-- Catalog Container -->
+        <div id="catalog-container" style="min-height:50vh;"></div>
+
+    </main>
+
+    <!-- ============================== -->
+    <!-- Product Detail Overlay         -->
+    <!-- ============================== -->
+    <div id="product-overlay" class="modal-overlay" style="z-index:200;">
+        <button id="close-overlay" style="
+            position:absolute; top:20px; right:20px; z-index:210;
+            display:flex; align-items:center; justify-content:center;
+            width:44px; height:44px; border-radius:50%;
+            background:var(--z-surface-alt); border:1px solid var(--z-border);
+            color:var(--z-text-primary); cursor:pointer;
+            transition: all 0.3s ease;
+        " aria-label="Cerrar">
+            <span class="material-symbols-outlined" style="font-size:24px;">close</span>
+        </button>
+        <div id="overlay-inner" style="
+            width:95%; max-width:1200px; max-height:90vh; overflow-y:auto;
+            background:var(--z-surface); border:1px solid var(--z-border);
+            border-radius:var(--z-radius-lg); box-shadow:var(--z-shadow-float);
+            scrollbar-width:none;
+        ">
+        </div>
+    </div>
+
+    <!-- ============================== -->
+    <!-- Global QR Modal                -->
+    <!-- ============================== -->
+    <div id="qr-modal" class="modal-overlay" style="z-index:250;">
+        <div class="modal-box" style="position:relative;">
+            <button class="modal-close-btn" onclick="closeQrModal()">
+                <span class="material-symbols-outlined" style="font-size:22px;">close</span>
+            </button>
+            <h3 id="qr-modal-title">Compartir Catálogo</h3>
+            <p style="font-size:13px; color:var(--z-text-secondary); margin-bottom:16px;">Escanea el código QR o copia el enlace</p>
+            <img id="qr-modal-img" class="qr-img" src="" alt="Código QR del catálogo" loading="lazy">
+            <div style="margin-top:8px;">
+                <button class="copy-btn" onclick="copyCurrentLink()">
+                    <span class="material-symbols-outlined" style="font-size:16px;">content_copy</span>
+                    Copiar enlace
+                </button>
+            </div>
+            <p id="copy-feedback" style="font-size:12px; color:#10B981; margin-top:12px; opacity:0; transition:opacity 0.3s ease;">✓ Enlace copiado</p>
+        </div>
+    </div>
+
+    <!-- ============================== -->
+    <!-- Fullscreen Image Viewer Modal  -->
+    <!-- ============================== -->
+    <div id="fullscreen-image-modal" class="modal-overlay" style="z-index:400;">
+        <button id="close-fullscreen-image" style="
+            position:absolute; top:20px; right:20px; z-index:410;
+            display:flex; align-items:center; justify-content:center;
+            width:44px; height:44px; border-radius:50%;
+            background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.25);
+            color:#fff; cursor:pointer;
+            transition: all 0.3s ease;
+        " aria-label="Cerrar" onclick="closeFullscreenImage()">
+            <span class="material-symbols-outlined" style="font-size:24px;">close</span>
+        </button>
+        <img id="fullscreen-image-el" src="" alt="Vista en pantalla completa">
+    </div>
+
+    <!-- ============================== -->
+    <!-- Global Toast Notification      -->
+    <!-- ============================== -->
+    <div id="global-toast" style="
+        position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(100px);
+        background:var(--z-surface-card); backdrop-filter:var(--z-glass-blur-deep); -webkit-backdrop-filter:var(--z-glass-blur-deep);
+        border:1px solid var(--z-glass-border); border-radius:var(--z-radius-lg); box-shadow:var(--z-shadow-float);
+        padding:16px 24px; z-index:500; display:flex; align-items:flex-start; gap:16px;
+        opacity:0; visibility:hidden; transition:all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        max-width:400px; width:90%;
+    ">
+        <div style="color:var(--z-crimson); display:flex; align-items:center; justify-content:center; background:var(--z-surface-alt); width:40px; height:40px; border-radius:50%; flex-shrink:0;">
+            <span class="material-symbols-outlined">notifications_active</span>
+        </div>
+        <div style="flex:1;">
+            <h4 id="toast-title" style="font-family:'Hanken Grotesk',sans-serif; font-weight:700; font-size:15px; margin-bottom:4px; color:var(--z-text-primary);"></h4>
+            <p id="toast-message" style="font-size:13px; color:var(--z-text-secondary); line-height:1.4;"></p>
+            <a id="toast-link" href="#" target="_blank" style="display:none; margin-top:8px; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600; text-transform:uppercase; color:var(--z-crimson); text-decoration:none;"></a>
+        </div>
+        <button onclick="closeToast()" style="background:none; border:none; color:var(--z-text-secondary); cursor:pointer; padding:0; margin-top:2px;">
+            <span class="material-symbols-outlined" style="font-size:20px;">close</span>
+        </button>
+    </div>
+
+    <!-- ============================== -->
+    <!-- Scripts                        -->
+    <!-- ============================== -->
+    <script>
+        const qrModal = document.getElementById('qr-modal');
+        const qrModalImg = document.getElementById('qr-modal-img');
+        const navQrBtn = document.getElementById('nav-qr-btn');
+        let activeQrLink = window.location.href;
+
+        window.openQrModal = function(link = window.location.href, title = 'Compartir Catálogo') {
+            activeQrLink = link;
+            const titleEl = document.getElementById('qr-modal-title');
+            if (titleEl) titleEl.textContent = title;
+            const url = encodeURIComponent(link);
+            qrModalImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${url}`;
+            qrModal.classList.add('visible');
+        }
+        window.closeQrModal = function() { qrModal.classList.remove('visible'); }
+
+        if (navQrBtn) {
+            navQrBtn.addEventListener('click', () => window.openQrModal(window.location.href, 'Compartir Catálogo'));
+        }
+        qrModal.addEventListener('click', (e) => { if (e.target === qrModal) window.closeQrModal(); });
+
+        window.copyCurrentLink = function() {
+            navigator.clipboard.writeText(activeQrLink).then(() => {
+                const fb = document.getElementById('copy-feedback');
+                fb.style.opacity = '1';
+                setTimeout(() => { fb.style.opacity = '0'; }, 2000);
+            });
+        }
+    </script>
+
+    <!-- Entrance Loader -->
+    <div id="entrance-loader">
+        <div class="entrance-logo">ZAIREN <span class="entrance-logo-jp">ザイレン</span></div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const loader = document.getElementById('entrance-loader');
+                if (loader) {
+                    loader.style.transform = 'translateY(40px)';
+                    loader.style.opacity = '0';
+                    setTimeout(() => {
+                        loader.style.display = 'none';
+                    }, 1000);
+                }
+            }, 900);
+        });
+    </script>
+
+</body>
+</html>
