@@ -1,1 +1,130 @@
-/MANUAL_CATALOGO.md
+# ============================================================
+# Zairen Lab — .gitignore
+# ============================================================
+
+# ----------------------------------
+# Archivos de configuración sensibles
+# (credenciales, secretos, .env)
+# ----------------------------------
+.env
+.env.*
+.env.local
+.env.production
+.env.staging
+*.secret
+*.key
+config.secret.*
+secrets/
+
+# ----------------------------------
+# Archivos de respaldo y exportación
+# que pueden contener datos reales
+# ----------------------------------
+*.backup.json
+zairen-backup.json
+*-backup.json
+*-export.json
+Public/data/*.bak
+
+# ----------------------------------
+# Cache del navegador / localStorage dump
+# ----------------------------------
+*.localstorage
+*.webstorage
+
+# ----------------------------------
+# Archivos de sistema operativo
+# ----------------------------------
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Linux
+*~
+
+# ----------------------------------
+# Editores de código
+# ----------------------------------
+# VS Code
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# JetBrains (WebStorm, Rider)
+.idea/
+*.iml
+
+# Sublime Text
+*.tmlanguage.cache
+*.tmPreferences.cache
+*.stTheme.cache
+*.sublime-workspace
+*.sublime-project
+
+# Vim / Neovim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+Session.vim
+Sessionx.vim
+
+# ----------------------------------
+# Node.js (por si se instala algún
+# paquete en el futuro)
+# ----------------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+.pnpm-debug.log*
+dist/
+build/
+.cache/
+.parcel-cache/
+
+# ----------------------------------
+# Logs y temporales
+# ----------------------------------
+logs/
+*.log
+tmp/
+temp/
+.temp/
+
+# ----------------------------------
+# Archivos de assets grandes o temporales
+# que no deben ir al repositorio
+# ----------------------------------
+Public/assets/*.psd
+Public/assets/*.ai
+Public/assets/*.fig
+Public/assets/raw/
+
+# ----------------------------------
+# Documentos internos
+# (no se publican en el repo)
+# ----------------------------------
+MANUAL_CATALOGO.md
+
+# ----------------------------------
+# Archivos de despliegue / CI
+# ----------------------------------
+.vercel
+.netlify
+.firebase/
+firebase.json
+.firebaserc

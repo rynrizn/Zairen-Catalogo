@@ -45,7 +45,7 @@ Este script creará todas las tablas necesarias que coinciden exactamente con la
 CREATE TABLE configuracion (
     id INT PRIMARY KEY DEFAULT 1,
     marca TEXT DEFAULT 'Zairen Lab',
-    whatsapp_number TEXT DEFAULT '+56900000000',
+    whatsapp_number TEXT DEFAULT '+59100000000',
     base_url TEXT DEFAULT 'https://tu-dominio.com',
     color_estado TEXT DEFAULT '#5C88B0',
     blur_intensity TEXT DEFAULT '20px',

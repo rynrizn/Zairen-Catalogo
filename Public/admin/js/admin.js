@@ -1,34 +1,11 @@
 // ============================================================
-// [BLOQUE AUTH — TEMPORAL TEXTO PLANO]
-// Este bloque debe reemplazarse por Supabase Auth cuando sea momento
-// Ver: Indicaciones_Supabase.md → Sección "Autenticación"
+// [BLOQUE AUTH — SUPABASE AUTH]
 // ============================================================
 
-const TEMP_AUTH = {
-    usuario: 'admin',
-    password: '123' // Contraseña temporal de pruebas
-};
+// El cliente Supabase ya está inicializado en storage.js como window._supabase
+// y está disponible en el scope global.
 
-const SESSION_KEY = 'zairen_admin_session';
-
-function authLogin(pwd) {
-    return pwd === TEMP_AUTH.password;
-}
-
-function sessionSave() {
-    localStorage.setItem(SESSION_KEY, 'true');
-}
-
-function sessionExists() {
-    return localStorage.getItem(SESSION_KEY) === 'true';
-}
-
-function sessionDestroy() {
-    localStorage.removeItem(SESSION_KEY);
-    window.location.reload();
-}
-
-// Elementos Auth
+// Elementos de la UI
 const loginScreen = document.getElementById('login-screen');
 const adminApp = document.getElementById('admin-app');
 const loginBtn = document.getElementById('login-btn');
@@ -36,20 +13,44 @@ const pwdInput = document.getElementById('admin-password');
 const errorMsg = document.getElementById('login-error');
 const logoutBtn = document.getElementById('logout-btn');
 
-loginBtn.addEventListener('click', () => {
-    if (authLogin(pwdInput.value)) {
-        sessionSave();
+// El email del administrador está fijo para la sesión de un solo usuario
+const ADMIN_EMAIL = 'admin@zairen.lab';
+
+loginBtn.addEventListener('click', async () => {
+    loginBtn.textContent = 'Verificando...';
+    loginBtn.disabled = true;
+    errorMsg.style.display = 'none';
+
+    const sb = window._supabase;
+    if (!sb) {
+        // Fallback temporal si Supabase SDK no cargó
+        errorMsg.textContent = 'Error de conexión. Intenta recargar la página.';
+        errorMsg.style.display = 'block';
+        loginBtn.textContent = 'Entrar';
+        loginBtn.disabled = false;
+        return;
+    }
+
+    const { data, error } = await sb.auth.signInWithPassword({
+        email: ADMIN_EMAIL,
+        password: pwdInput.value,
+    });
+
+    if (error) {
+        errorMsg.textContent = 'Contraseña incorrecta. Inténtalo de nuevo.';
+        errorMsg.style.display = 'block';
+        loginBtn.textContent = 'Entrar';
+        loginBtn.disabled = false;
+    } else {
         loginScreen.style.display = 'none';
         adminApp.style.display = 'block';
-        initAdmin();
+        await initAdmin();
         const loader = document.getElementById('entrance-loader');
         if (loader) {
             loader.style.display = 'flex';
             loader.style.transform = 'translateY(0)';
         }
         triggerEntranceLoader();
-    } else {
-        errorMsg.style.display = 'block';
     }
 });
 
@@ -57,7 +58,11 @@ pwdInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') loginBtn.click();
 });
 
-logoutBtn.addEventListener('click', sessionDestroy);
+logoutBtn.addEventListener('click', async () => {
+    const sb = window._supabase;
+    if (sb) await sb.auth.signOut();
+    window.location.reload();
+});
 
 // ============================================================
 // [BLOQUE ESTADO LOCAL]
@@ -74,13 +79,13 @@ let inventarioTimeout = null;
 let stockTimeout = null;
 
 async function initAdmin() {
-    // Cargar datos locales o desde JSON si es primera vez
-    currentData = CatalogStorage.load();
+    // Cargar datos desde Supabase (con fallback a respaldo local)
+    currentData = await CatalogStorage.load();
     if (!currentData) {
         try {
             const res = await fetch('../data/products.json');
             currentData = await res.json();
-            CatalogStorage.save(currentData);
+            await CatalogStorage.save(currentData);
         } catch (e) {
             console.error("No se pudo cargar products.json", e);
             currentData = { configuracion: { colorEstado: "#5C88B0" }, productos: [] };
@@ -114,9 +119,9 @@ function setupBlurConfig() {
     const configBlur = document.getElementById('config-blur');
     if (configBlur) {
         configBlur.value = currentData.configuracion.blurIntensity || "20px";
-        configBlur.addEventListener('change', (e) => {
+        configBlur.addEventListener('change', async (e) => {
             currentData.configuracion.blurIntensity = e.target.value;
-            CatalogStorage.save(currentData);
+            await CatalogStorage.save(currentData);
         });
     }
 }
@@ -186,23 +191,23 @@ function renderSectionOrderList() {
         const downBtn = item.querySelector('.move-down-btn');
         
         if (index > 0) {
-            upBtn.addEventListener('click', () => {
+            upBtn.addEventListener('click', async () => {
                 const temp = currentOrder[index];
                 currentOrder[index] = currentOrder[index - 1];
                 currentOrder[index - 1] = temp;
                 currentData.configuracion.ordenSecciones = currentOrder;
-                CatalogStorage.save(currentData);
+                await CatalogStorage.save(currentData);
                 renderSectionOrderList();
             });
         }
         
         if (index < currentOrder.length - 1) {
-            downBtn.addEventListener('click', () => {
+            downBtn.addEventListener('click', async () => {
                 const temp = currentOrder[index];
                 currentOrder[index] = currentOrder[index + 1];
                 currentOrder[index + 1] = temp;
                 currentData.configuracion.ordenSecciones = currentOrder;
-                CatalogStorage.save(currentData);
+                await CatalogStorage.save(currentData);
                 renderSectionOrderList();
             });
         }
@@ -214,9 +219,9 @@ function renderSectionOrderList() {
 function setupConfigSectionOrder() {
     const enableToggle = document.getElementById('config-custom-sections-enable');
     if (enableToggle) {
-        enableToggle.addEventListener('change', (e) => {
+        enableToggle.addEventListener('change', async (e) => {
             currentData.configuracion.ordenSeccionesEnabled = e.target.checked;
-            CatalogStorage.save(currentData);
+            await CatalogStorage.save(currentData);
             renderSectionOrderList();
         });
     }
@@ -376,11 +381,11 @@ function drawInventarioTable() {
     });
 
     document.querySelectorAll('.btn-del').forEach(btn => {
-        btn.addEventListener('click', (e) => {
+        btn.addEventListener('click', async (e) => {
             const id = e.target.dataset.id;
             if (confirm("¿Estás seguro de eliminar este producto?")) {
                 currentData.productos = currentData.productos.filter(x => x.id !== id);
-                CatalogStorage.save(currentData);
+                await CatalogStorage.save(currentData);
                 updateTipoFilterDropdown();
                 renderInventario(true);
                 renderStock(true);
@@ -470,7 +475,7 @@ function setupFormAgregar() {
     });
 
     const form = document.getElementById('form-agregar');
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
         let seccion = selSeccion.value;
@@ -521,7 +526,7 @@ function setupFormAgregar() {
             form.reset();
         }
         
-        CatalogStorage.save(currentData);
+        await CatalogStorage.save(currentData);
         updateTipoFilterDropdown();
         renderInventario();
         renderStock();
@@ -618,13 +623,13 @@ function drawStockGrid() {
     });
 
     document.querySelectorAll('.stock-select').forEach(sel => {
-        sel.addEventListener('change', (e) => {
+        sel.addEventListener('change', async (e) => {
             const id = e.target.dataset.id;
             const newVal = e.target.value;
             const p = currentData.productos.find(x => x.id === id);
             if(p) {
                 p.estado = newVal;
-                CatalogStorage.save(currentData);
+                await CatalogStorage.save(currentData);
                 renderInventario(true);
             }
         });
@@ -636,7 +641,7 @@ function drawStockGrid() {
 // ============================================================
 function setupNotificaciones() {
     const form = document.getElementById('form-notificaciones');
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const nuevaNotif = {
             id: `notif-${Date.now()}`,
@@ -650,7 +655,7 @@ function setupNotificaciones() {
         if (!currentData.notificaciones) currentData.notificaciones = [];
         currentData.notificaciones.unshift(nuevaNotif); // Añadir arriba
         
-        CatalogStorage.save(currentData);
+        await CatalogStorage.save(currentData);
         form.reset();
         alert("¡Notificación enviada en tiempo real!");
     });
@@ -679,12 +684,12 @@ function renderColorPicker() {
         swatch.className = `color-swatch ${color === currentColor ? 'active' : ''}`;
         swatch.style.backgroundColor = color;
         
-        swatch.addEventListener('click', () => {
+        swatch.addEventListener('click', async () => {
             document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
             swatch.classList.add('active');
             
             currentData.configuracion.colorEstado = color;
-            CatalogStorage.save(currentData);
+            await CatalogStorage.save(currentData);
             
             const btn = document.createElement('div');
             btn.textContent = "Guardado";
@@ -1054,14 +1059,23 @@ function triggerEntranceLoader() {
 }
 
 // ============================================================
-// EJECUCIÓN AL CARGAR
+// VERIFICACIÓN DE SESIÓN AL CARGAR
 // ============================================================
-if (sessionExists()) {
-    loginScreen.style.display = 'none';
-    adminApp.style.display = 'block';
-    initAdmin();
-    triggerEntranceLoader();
-} else {
+async function comprobarSesionActiva() {
+    const sb = window._supabase;
+    if (sb) {
+        const { data: { session } } = await sb.auth.getSession();
+        if (session) {
+            loginScreen.style.display = 'none';
+            adminApp.style.display = 'block';
+            await initAdmin();
+            triggerEntranceLoader();
+            return;
+        }
+    }
+    // Sin sesión activa — mostrar pantalla de login
     const loader = document.getElementById('entrance-loader');
     if (loader) loader.style.display = 'none';
 }
+
+comprobarSesionActiva();

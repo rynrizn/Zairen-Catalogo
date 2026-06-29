@@ -29,10 +29,12 @@ async function initCatalog() {
         if (badge) badge.style.display = 'inline-block';
     }
 
+    // Mostrar loader mientras se cargan los datos de Supabase
+    const catalogContainer = document.getElementById('catalog-container');
+
     let data = null;
-    if (isPreview || true) { // Temporal force local load for Phase 2
-        data = CatalogStorage.load();
-    }
+    // Siempre intentar cargar desde Supabase primero
+    data = await CatalogStorage.load();
 
     if (!data || !data.productos) {
         try {
@@ -82,16 +84,6 @@ async function initCatalog() {
     
     // Track Page View
     trackPageView(data);
-    
-    // Listen to storage events for real-time local sync
-    window.addEventListener('storage', (e) => {
-        if (e.key === 'zairen-catalog-draft') {
-            const newData = JSON.parse(e.newValue);
-            if (newData && newData.notificaciones) {
-                setupNotifications(newData.notificaciones, true);
-            }
-        }
-    });
 }
 
 function setupNotifications(notifs, isUpdate = false) {
@@ -725,7 +717,7 @@ function updateFavNavbarBadge() {
     }
 }
 
-function trackPageView(data) {
+async function trackPageView(data) {
     if (!data) return;
     if (!data.stats) data.stats = { views: [], favorited: {} };
     if (!data.stats.views) data.stats.views = [];
@@ -748,11 +740,11 @@ function trackPageView(data) {
         data.stats.views.push(dayEntry);
     }
     dayEntry.cantidad += 1;
-    CatalogStorage.save(data);
+    await CatalogStorage.save(data);
 }
 
-function trackFavorite(productId, isAdded) {
-    let data = CatalogStorage.load();
+async function trackFavorite(productId, isAdded) {
+    let data = await CatalogStorage.load();
     if (!data) return;
     if (!data.stats) data.stats = { views: [], favorited: {} };
     if (!data.stats.favorited) data.stats.favorited = {};
@@ -763,17 +755,17 @@ function trackFavorite(productId, isAdded) {
     } else {
         data.stats.favorited[productId] = Math.max(0, currentCount - 1);
     }
-    CatalogStorage.save(data);
+    await CatalogStorage.save(data);
 }
 
-window.trackWspClick = function(productId) {
-    let data = CatalogStorage.load();
+window.trackWspClick = async function(productId) {
+    let data = await CatalogStorage.load();
     if (!data) return;
     if (!data.stats) data.stats = { views: [], favorited: {}, wspClicks: {} };
     if (!data.stats.wspClicks) data.stats.wspClicks = {};
     
     data.stats.wspClicks[productId] = (data.stats.wspClicks[productId] || 0) + 1;
-    CatalogStorage.save(data);
+    await CatalogStorage.save(data);
 };
 
 // ==============================
