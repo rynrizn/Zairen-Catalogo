@@ -21,18 +21,17 @@ function openProductDetail(producto, configuracion) {
     const estadoConf = configuracion.estados[producto.estado] || {};
     const estadoTexto = estadoConf.texto || producto.estado || 'N/A';
     const estadoColor = estadoConf.color || '#3B82F6';
-    const isAgotado = producto.estado === 'agotado';
-
-    // Talla buttons
+    const isAgotado = producto.estado === 'agotado';    // Talla buttons
     const tallas = producto.tallas || [];
     let sizeButtonsHTML = '';
     tallas.forEach((talla, idx) => {
         const isSelected = idx === 0;
+        const escTalla = escapeHTML(talla);
         sizeButtonsHTML += `
             <button class="talla-btn ${isSelected ? 'talla-selected' : ''}"
-                    data-talla="${talla}"
-                    onclick="selectTalla('${talla}', this)">
-                ${talla}
+                    data-talla="${escTalla}"
+                    onclick="selectTalla('${escTalla.replace(/'/g, "\\'")}', this)">
+                ${escTalla}
             </button>
         `;
     });
@@ -49,6 +48,18 @@ function openProductDetail(producto, configuracion) {
     // Kanji decorativo
     const kanjiChar = producto.tags && producto.tags.includes('kanji') ? '無' : '造';
 
+    // Escapar variables de texto
+    const escNombre = escapeHTML(producto.nombre);
+    const escDesc = escapeHTML(producto.descripcion);
+    const escId = escapeHTML(producto.id);
+    const escSeccion = escapeHTML(seccionNombre);
+    const escTipo = escapeHTML(producto.tipo || '');
+    const escEstado = escapeHTML(estadoTexto);
+    const escPrecio = escapeHTML(producto.precio);
+    const escMoneda = escapeHTML(producto.moneda || 'CLP');
+    const escMaterial = producto.detalles && producto.detalles.material ? escapeHTML(producto.detalles.material) : '';
+    const escCuidado = producto.detalles && producto.detalles.cuidado ? escapeHTML(producto.detalles.cuidado) : '';
+
     overlayInner.innerHTML = `
         <!-- ============================================ -->
         <!-- BENTO GRID — Product Detail                  -->
@@ -59,8 +70,8 @@ function openProductDetail(producto, configuracion) {
 
             <!-- BOX 1: Hero Image (tall, spans 2 rows) -->
             <div class="bento-cell bento-image">
-                <img src="${producto.imagen}" alt="${producto.nombre}" loading="lazy">
-                <span class="bento-badge" style="background-color:${estadoColor};">${estadoTexto}</span>
+                <img src="${producto.imagen}" alt="${escNombre}" loading="lazy">
+                <span class="bento-badge" style="background-color:${estadoColor};">${escEstado}</span>
                 <button class="bento-fullscreen-btn" onclick="openFullscreenImage('${producto.imagen}')" title="Ver en pantalla completa">
                     <span class="material-symbols-outlined">fullscreen</span>
                 </button>
@@ -68,7 +79,7 @@ function openProductDetail(producto, configuracion) {
 
             <!-- BOX 2: Name + Description -->
             <div class="bento-cell bento-description" style="position: relative;">
-                <button class="bento-qr-trigger-btn" onclick="openProductQrModal('${producto.id}', '${producto.nombre.replace(/'/g, "\\'")}')" title="Compartir producto via QR" style="
+                <button class="bento-qr-trigger-btn" onclick="openProductQrModal('${escId}', '${escNombre.replace(/'/g, "\\'")}')" title="Compartir producto via QR" style="
                     position: absolute;
                     top: 16px;
                     right: 16px;
@@ -89,15 +100,15 @@ function openProductDetail(producto, configuracion) {
                 </button>
                 <div style="padding-right: 36px;">
                     <div class="bento-section-tag">
-                        <span class="tag-crimson">${seccionNombre}</span>
+                        <span class="tag-crimson">${escSeccion}</span>
                         <span class="tag-sep"></span>
-                        <span class="tag-muted">${producto.tipo || ''}</span>
+                        <span class="tag-muted">${escTipo}</span>
                     </div>
-                    <h2 class="bento-title">${producto.nombre}</h2>
-                    <p class="bento-desc">${producto.descripcion}</p>
+                    <h2 class="bento-title">${escNombre}</h2>
+                    <p class="bento-desc">${escDesc}</p>
                 </div>
                 <div class="bento-footer-row">
-                    <span class="bento-id">ID: ${producto.id}</span>
+                    <span class="bento-id">ID: ${escId}</span>
                 </div>
             </div>
 
@@ -108,19 +119,19 @@ function openProductDetail(producto, configuracion) {
             <div class="bento-cell bento-composition">
                 <span class="bento-cell-label">COMPOSICIÓN</span>
                 <ul class="bento-comp-list">
-                    ${producto.detalles && producto.detalles.material ? `
+                    ${escMaterial ? `
                     <li>
                         <span class="material-symbols-outlined bento-comp-icon">eco</span>
                         <div>
-                            <strong>${producto.detalles.material}</strong>
+                            <strong>${escMaterial}</strong>
                         </div>
                     </li>` : ''}
-                    ${producto.detalles && producto.detalles.cuidado ? `
+                    ${escCuidado ? `
                     <li>
                         <span class="material-symbols-outlined bento-comp-icon">laundry</span>
                         <div>
                             <strong>Cuidado</strong>
-                            <span>${producto.detalles.cuidado}</span>
+                            <span>${escCuidado}</span>
                         </div>
                     </li>` : ''}
                 </ul>
@@ -130,7 +141,7 @@ function openProductDetail(producto, configuracion) {
             <div class="bento-cell bento-sizes">
                 <div class="bento-sizes-header">
                     <span class="bento-cell-label">TALLA</span>
-                    <span id="selected-talla-label" class="bento-talla-active">${selectedTalla || '—'}</span>
+                    <span id="selected-talla-label" class="bento-talla-active">${escapeHTML(selectedTalla) || '—'}</span>
                 </div>
                 <div class="bento-talla-grid" id="talla-grid">
                     ${sizeButtonsHTML}
@@ -141,8 +152,8 @@ function openProductDetail(producto, configuracion) {
             <div class="bento-cell bento-actions">
                 <div class="bento-price-block">
                     <span class="bento-cell-label">PRECIO</span>
-                    <span class="bento-price-value">$${producto.precio}</span>
-                    <span class="bento-price-currency">${producto.moneda || 'CLP'}</span>
+                    <span class="bento-price-value">$${escPrecio}</span>
+                    <span class="bento-price-currency">${escMoneda}</span>
                 </div>
                 <div class="bento-actions-btns">
                     <button id="btn-wsp-detail" class="bento-btn-wsp" ${isAgotado ? 'disabled' : ''} style="display:inline-flex; align-items:center; justify-content:center; gap:8px;">
@@ -160,6 +171,7 @@ function openProductDetail(producto, configuracion) {
                 </div>
             </div>
         </div>
+    `;/div>
     `;
 
     // Attach WhatsApp click handler

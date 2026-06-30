@@ -198,6 +198,71 @@ const CatalogStorage = {
     }
   },
 
+  // ============================================================
+  // MÉTODOS PÚBLICOS DE MÉTRICAS (Seguros, evitan errores RLS)
+  // ============================================================
+  async incrementPageView() {
+    if (!_supabaseClient) return;
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const { data, error } = await _supabaseClient
+        .from('stats_views')
+        .select('cantidad')
+        .eq('fecha', today)
+        .maybeSingle();
+      
+      if (error && error.code !== 'PGRST116') throw error; // Ignorar si no se encuentra registro
+
+      const currentQty = data ? data.cantidad : 0;
+      await _supabaseClient
+        .from('stats_views')
+        .upsert({ fecha: today, cantidad: currentQty + 1 });
+    } catch (e) {
+      console.warn('[Zairen CMS] No se pudo guardar vista diaria:', e);
+    }
+  },
+
+  async incrementFavorite(productId, isAdded) {
+    if (!_supabaseClient) return;
+    try {
+      const { data, error } = await _supabaseClient
+        .from('stats_favoritos')
+        .select('cantidad')
+        .eq('producto_id', productId)
+        .maybeSingle();
+
+      if (error && error.code !== 'PGRST116') throw error;
+
+      const currentQty = data ? data.cantidad : 0;
+      const newQty = isAdded ? currentQty + 1 : Math.max(0, currentQty - 1);
+      await _supabaseClient
+        .from('stats_favoritos')
+        .upsert({ producto_id: productId, cantidad: newQty });
+    } catch (e) {
+      console.warn('[Zairen CMS] No se pudo actualizar favorito para:', productId, e);
+    }
+  },
+
+  async incrementWspClick(productId) {
+    if (!_supabaseClient) return;
+    try {
+      const { data, error } = await _supabaseClient
+        .from('stats_wsp')
+        .select('cantidad')
+        .eq('producto_id', productId)
+        .maybeSingle();
+
+      if (error && error.code !== 'PGRST116') throw error;
+
+      const currentQty = data ? data.cantidad : 0;
+      await _supabaseClient
+        .from('stats_wsp')
+        .upsert({ producto_id: productId, cantidad: currentQty + 1 });
+    } catch (e) {
+      console.warn('[Zairen CMS] No se pudo guardar click de WhatsApp para:', productId, e);
+    }
+  },
+
   // Respaldo local de emergencia
   _loadLocalBackup() {
     try {
@@ -223,6 +288,19 @@ const CatalogStorage = {
 
   // Exponer cliente Supabase para uso en otros módulos (auth, etc.)
   getClient() { return _supabaseClient; }
+};
+
+// ============================================================
+// PREVENCIÓN DE INYECCIONES Y XSS (GLOBAL HELPER)
+// ============================================================
+window.escapeHTML = function(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 };
 
 // Alias global para acceso directo desde admin.js

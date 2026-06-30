@@ -102,11 +102,17 @@ function setupNotifications(notifs, isUpdate = false) {
             
             const item = document.createElement('div');
             item.style.cssText = 'padding:12px; background:var(--z-surface-alt); border-radius:var(--z-radius-sm); border:1px solid var(--z-border);';
-            let linkHtml = n.link ? `<a href="${n.link}" target="_blank" style="display:inline-block; margin-top:6px; font-family:\\'JetBrains Mono\\',monospace; font-size:11px; font-weight:600; text-transform:uppercase; color:var(--z-crimson); text-decoration:none;">${n.linkTexto || 'Ver Enlace'}</a>` : '';
+            
+            const escTitulo = escapeHTML(n.titulo);
+            const escMensaje = escapeHTML(n.mensaje);
+            const escLink = n.link ? escapeHTML(n.link) : '';
+            const escLinkTexto = n.linkTexto ? escapeHTML(n.linkTexto) : 'Ver Enlace';
+            
+            let linkHtml = n.link ? `<a href="${escLink}" target="_blank" style="display:inline-block; margin-top:6px; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600; text-transform:uppercase; color:var(--z-crimson); text-decoration:none;">${escLinkTexto}</a>` : '';
             
             item.innerHTML = `
-                <h5 style="font-family:'Hanken Grotesk',sans-serif; font-size:13px; font-weight:700; color:var(--z-text-primary); margin-bottom:4px;">${n.titulo}</h5>
-                <p style="font-size:12px; color:var(--z-text-secondary); line-height:1.4;">${n.mensaje}</p>
+                <h5 style="font-family:'Hanken Grotesk',sans-serif; font-size:13px; font-weight:700; color:var(--z-text-primary); margin-bottom:4px;">${escTitulo}</h5>
+                <p style="font-size:12px; color:var(--z-text-secondary); line-height:1.4;">${escMensaje}</p>
                 ${linkHtml}
             `;
             list.appendChild(item);
@@ -404,8 +410,8 @@ function renderSectionView(container) {
         const sectionEl = document.createElement('div');
         sectionEl.className = 'section-collapsible';
 
-        const seccionLabel = seccionKey.charAt(0).toUpperCase() + seccionKey.slice(1);
-        const sectionId = `section-${seccionKey}`;
+        const seccionLabel = escapeHTML(seccionKey.charAt(0).toUpperCase() + seccionKey.slice(1));
+        const sectionId = `section-${escapeHTML(seccionKey)}`;
 
         const header = document.createElement('div');
         header.className = 'section-header open';
@@ -518,14 +524,20 @@ function createProductCard(producto, animIndex) {
 
     const isFav = favorites.includes(producto.id);
     const estadoConf = catalogConfig.estados && catalogConfig.estados[producto.estado] ? catalogConfig.estados[producto.estado] : {};
-    const estadoTexto = estadoConf.texto || producto.estado || '';
+    
+    // Escapar variables de texto para la tarjeta
+    const escNombre = escapeHTML(producto.nombre);
+    const escPrecio = escapeHTML(producto.precio);
+    const escTipo = escapeHTML(producto.tipo || '');
+    const escEstadoTexto = escapeHTML(estadoConf.texto || producto.estado || '');
+    
     const estadoColor = estadoConf.color || '#3B82F6';
     const isAgotado = producto.estado === 'agotado';
 
     card.innerHTML = `
         <div class="card-image-wrap">
-            <img src="${producto.imagen}" alt="${producto.nombre}" loading="lazy" class="card-img-element">
-            <span class="card-badge" style="background-color:${estadoColor};">${estadoTexto}</span>
+            <img src="${producto.imagen}" alt="${escNombre}" loading="lazy" class="card-img-element">
+            <span class="card-badge" style="background-color:${estadoColor};">${escEstadoTexto}</span>
             <button class="fav-btn ${isFav ? 'is-active' : ''}" data-id="${producto.id}">
                 <span class="material-symbols-outlined" style="font-variation-settings:'FILL' ${isFav ? 1 : 0}; font-size:20px;">favorite</span>
             </button>
@@ -537,10 +549,10 @@ function createProductCard(producto, animIndex) {
             </div>
         </div>
         <div class="card-info-overlay">
-            <span class="card-name">${producto.nombre}</span>
+            <span class="card-name">${escNombre}</span>
             <div class="card-meta">
-                <span class="card-price">$${producto.precio}</span>
-                <span class="card-type">${producto.tipo || ''}</span>
+                <span class="card-price">$${escPrecio}</span>
+                <span class="card-type">${escTipo}</span>
             </div>
             <div class="card-actions">
                 <button class="card-btn btn-detail" data-action="detail" style="display:inline-flex; align-items:center; justify-content:center; gap:4px;">
@@ -554,7 +566,7 @@ function createProductCard(producto, animIndex) {
                 <button class="card-btn ${isAgotado ? 'btn-disabled' : 'btn-wsp'}" data-action="wsp" ${isAgotado ? 'disabled' : ''} style="display:inline-flex; align-items:center; justify-content:center; gap:4px;">
                     ${isAgotado ? 'Agotado' : `
                       <svg fill="currentColor" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="width:14px; height:14px;">
-                        <path d="M26.576 5.363c-2.69-2.69-6.406-4.354-10.511-4.354-8.209 0-14.865 6.655-14.865 14.865 0 2.732 0.737 5.291 2.022 7.491l-0.038-0.070-2.109 7.702 7.879-2.067c2.051 1.139 4.498 1.809 7.102 1.809h0.006c8.209-0.003 14.862-6.659 14.862-14.868 0-4.103-1.662-7.817-4.349-10.507l0 0zM16.062 28.228h-0.005c-0 0-0.001 0-0.001 0-2.319 0-4.489-0.64-6.342-1.753l0.056 0.031-0.451-0.267-4.675 1.227 1.247-4.559-0.294-0.467c-1.185-1.862-1.889-4.131-1.889-6.565 0-6.822 5.531-12.353 12.353-12.353s12.353 5.531 12.353 12.353c0 6.822-5.53 12.353-12.353 12.353h-0zM22.838 18.977c-0.371-0.186-2.197-1.083-2.537-1.208-0.341-0.124-0.589-0.185-0.837 0.187-0.246 0.371-0.958 1.207-1.175 1.455-0.216 0.249-0.434 0.279-0.805 0.094-1.15-0.466-2.138-1.087-2.997-1.852l0.010 0.009c-0.799-0.74-1.484-1.587-2.037-2.521l-0.028-0.052c-0.216-0.371-0.023-0.572 0.162-0.757 0.167-0.166 0.372-0.434 0.557-0.65 0.146-0.179 0.271-0.384 0.366-0.604l0.006-0.017c0.043-0.087 0.068-0.188 0.068-0.296 0-0.131-0.037-0.253-0.101-0.357l0.002 0.003c-0.094-0.186-0.836-2.014-1.145-2.758-0.302-0.724-0.609-0.625-0.836-0.637-0.216-0.010-0.464-0.012-0.712-0.012-0.395 0.010-0.746 0.188-0.988 0.463l-0.001 0.002c-0.802 0.761-1.3 1.834-1.3 3.023 0 0.026 0 0.053 0.001 0.079l-0-0.004c0.131 1.467 0.681 2.784 1.527 3.857l-0.012-0.015c1.604 2.379 3.742 4.282 6.251 5.564l0.094 0.043c0.548 0.248 1.25 0.513 1.968 0.74l0.149 0.041c0.442 0.14 0.951 0.221 1.479 0.221 0.303 0 0.601-0.027 0.889-0.078l-0.031 0.004c1.069-0.223 1.956-0.868 2.497-1.749l0.009-0.017c0.165-0.366 0.261-0.793 0.261-1.242 0-0.185-0.016-0.366-0.047-0.542l0.003 0.019c-0.092-0.155-0.34-0.247-0.712-0.434z"/>
+                        <path d="M26.576 5.363c-2.69-2.69-6.406-4.354-10.511-4.354-8.209 0-14.865 6.655-14.865 14.865 0 2.732 0.737 5.291 2.022 7.491l-0.038-0.070-2.109 7.702 7.879-2.067c2.051 1.139 4.498 1.809 7.102 1.809h0.006c8.209-0.003 14.862-6.659 14.862-14.868 0-4.103-1.662-7.817-4.349-10.507l0 0zM16.062 28.228h-0.005c-0 0-0.001 0-0.001 0-2.319 0-4.489-0.64-6.342-1.753l0.056 0.031-0.451-0.267-4.675 1.227 1.247-4.559-0.294-0.467c-1.185-1.862-1.889-4.131-1.889-6.565 0-6.822 5.531-12.353 12.353-12.353s12.353 5.531 12.353 12.353c0 6.822-5.53 12.353-12.353 12.353h-0zM22.838 18.977c-0.371-0.186-2.197-1.083-2.537-1.208-0.341-0.124-0.589-0.185-0.837 0.187-0.246 0.371-0.958 1.207-1.175 1.455-0.216 0.249-0.434 0.279-0.805 0.094-1.15-0.466-2.138-1.087-2.997-1.852l0.010 0.009c-0.799-0.74-1.484-1.587-2.037-2.521l-0.028-0.052c-0.216-0.371-0.023-0.572 0.162-0.757 0.167-0.166 0.372-0.434 0.557-0.65 0.146-0.179 0.271-0.384 0.366-0.604l0.006-0.017c0.043-0.087 0.068-0.188 0.068-0.296 0-0.131-0.037-0.253-0.101-0.357l0.002 0.003c-0.094-0.186-0.836-2.014-1.145-2.758-0.302-0.724-0.609-0.625-0.836-0.637-0.216-0.010-0.464-0.012-0.712-0.012-0.395 0.010-0.746 0.188-0.988 0.463l-0.001 0.002c-0.802 0.761-1.3 1.834-1.3 3.023 0 0.026 0 0.053 0.001 0.079l-0-0.004c0.131 1.467 0.681 2.784 1.527 3.857l-0.012-0.015c1.604 2.379 3.742 4.282 6.251 5.564l0.094 0.043c0.548 0.248 1.25 0.513 1.968 0.74l0.149 0.041c0.442 0.14 0.951 0.221 1.479 0.221 0.303 0 0.601-0.027 0.889-0.078l-0.031 0.004c1.069-0.223 1.956-0.868 2.497-1.749l0.009-0.017c0.165-0.366 0.261-0.793 0.261-1.242 0-0.185-0.016-0.366-0.047-0.542l0.003 0.019c-0.092-0.155-0.34-0.247-0.712-0.434z"></path>
                       </svg>
                       <span>WhatsApp</span>
                     `}
@@ -718,54 +730,18 @@ function updateFavNavbarBadge() {
 }
 
 async function trackPageView(data) {
-    if (!data) return;
-    if (!data.stats) data.stats = { views: [], favorited: {} };
-    if (!data.stats.views) data.stats.views = [];
-    if (!data.stats.favorited) data.stats.favorited = {};
-    
-    const today = new Date().toISOString().split('T')[0];
-    let dayEntry = data.stats.views.find(v => v.fecha === today);
-    
-    if (!dayEntry) {
-        // seed 6 days back if views list is empty
-        if (data.stats.views.length === 0) {
-            for (let i = 6; i > 0; i--) {
-                const d = new Date();
-                d.setDate(d.getDate() - i);
-                const dStr = d.toISOString().split('T')[0];
-                data.stats.views.push({ fecha: dStr, cantidad: Math.floor(Math.random() * 100) + 150 });
-            }
-        }
-        dayEntry = { fecha: today, cantidad: 0 };
-        data.stats.views.push(dayEntry);
-    }
-    dayEntry.cantidad += 1;
-    await CatalogStorage.save(data);
+    // Incrementar en Supabase de forma segura y directa
+    await CatalogStorage.incrementPageView();
 }
 
 async function trackFavorite(productId, isAdded) {
-    let data = await CatalogStorage.load();
-    if (!data) return;
-    if (!data.stats) data.stats = { views: [], favorited: {} };
-    if (!data.stats.favorited) data.stats.favorited = {};
-    
-    const currentCount = data.stats.favorited[productId] || 0;
-    if (isAdded) {
-        data.stats.favorited[productId] = currentCount + 1;
-    } else {
-        data.stats.favorited[productId] = Math.max(0, currentCount - 1);
-    }
-    await CatalogStorage.save(data);
+    // Incrementar en Supabase de forma segura y directa
+    await CatalogStorage.incrementFavorite(productId, isAdded);
 }
 
 window.trackWspClick = async function(productId) {
-    let data = await CatalogStorage.load();
-    if (!data) return;
-    if (!data.stats) data.stats = { views: [], favorited: {}, wspClicks: {} };
-    if (!data.stats.wspClicks) data.stats.wspClicks = {};
-    
-    data.stats.wspClicks[productId] = (data.stats.wspClicks[productId] || 0) + 1;
-    await CatalogStorage.save(data);
+    // Incrementar en Supabase de forma segura y directa
+    await CatalogStorage.incrementWspClick(productId);
 };
 
 // ==============================

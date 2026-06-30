@@ -173,7 +173,7 @@ function renderSectionOrderList() {
         const item = document.createElement('div');
         item.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--z-surface-alt); border: 1px solid var(--z-border); border-radius: var(--z-radius-sm);';
         
-        const label = sec.charAt(0).toUpperCase() + sec.slice(1);
+        const label = escapeHTML(sec.charAt(0).toUpperCase() + sec.slice(1));
         
         item.innerHTML = `
             <span style="font-weight: 600; font-size: 14px; color: var(--z-text-primary);">${label}</span>
@@ -348,22 +348,29 @@ function drawInventarioTable() {
     
     sorted.forEach((p) => {
         const tr = document.createElement('tr');
+        const escNombre = escapeHTML(p.nombre);
+        const escPrecio = escapeHTML(p.precio);
+        const escMoneda = escapeHTML(p.moneda || 'CLP');
+        const escSeccion = escapeHTML(p.seccion);
+        const escEstado = escapeHTML(p.estado);
+        const escId = escapeHTML(p.id);
+
         tr.innerHTML = `
             <td>
-                <img src="${p.imagen}" alt="${p.nombre}" class="product-thumb">
+                <img src="${p.imagen}" alt="${escNombre}" class="product-thumb">
             </td>
-            <td style="font-weight: 600;">${p.nombre}</td>
-            <td style="font-family: 'DotGothic16', monospace;">$${p.precio} ${p.moneda}</td>
-            <td style="text-transform: capitalize; color: var(--z-text-secondary);">${p.seccion}</td>
+            <td style="font-weight: 600;">${escNombre}</td>
+            <td style="font-family: 'DotGothic16', monospace;">$${escPrecio} ${escMoneda}</td>
+            <td style="text-transform: capitalize; color: var(--z-text-secondary);">${escSeccion}</td>
             <td>
-                <span class="status-badge" style="background-color: ${statusColors[p.estado] || '#666'}">${p.estado}</span>
+                <span class="status-badge" style="background-color: ${statusColors[p.estado] || '#666'}">${escEstado}</span>
             </td>
             <td>
                 <div class="table-actions" style="justify-content: flex-end;">
-                    <button class="icon-btn btn-edit" data-id="${p.id}" title="Editar">
+                    <button class="icon-btn btn-edit" data-id="${escId}" title="Editar">
                         <span class="material-symbols-outlined" style="font-size: 18px; pointer-events:none;">edit</span>
                     </button>
-                    <button class="icon-btn btn-del" data-id="${p.id}" title="Eliminar">
+                    <button class="icon-btn btn-del" data-id="${escId}" title="Eliminar">
                         <span class="material-symbols-outlined" style="font-size: 18px; pointer-events:none;">delete</span>
                     </button>
                 </div>
@@ -605,12 +612,17 @@ function drawStockGrid() {
     filteredProds.forEach((p) => {
         const card = document.createElement('div');
         card.className = 'bento-cell stock-card';
+        
+        const escNombre = escapeHTML(p.nombre);
+        const escId = escapeHTML(p.id);
+        const escEstado = escapeHTML(p.estado);
+
         card.innerHTML = `
-            <img src="${p.imagen}" alt="${p.nombre}" class="product-thumb">
+            <img src="${p.imagen}" alt="${escNombre}" class="product-thumb">
             <div class="stock-info">
-                <div class="stock-name">${p.nombre}</div>
-                <div style="font-size: 12px; color: var(--z-text-secondary); margin-bottom: 8px;">ID: ${p.id}</div>
-                <select class="admin-input admin-select stock-select" data-id="${p.id}" style="padding: 8px 12px; margin-bottom: 0;">
+                <div class="stock-name">${escNombre}</div>
+                <div style="font-size: 12px; color: var(--z-text-secondary); margin-bottom: 8px;">ID: ${escId}</div>
+                <select class="admin-input admin-select stock-select" data-id="${escId}" style="padding: 8px 12px; margin-bottom: 0;">
                     <option value="nuevo" ${p.estado === 'nuevo' ? 'selected' : ''}>NUEVO</option>
                     <option value="disponible" ${p.estado === 'disponible' ? 'selected' : ''}>DISPONIBLE</option>
                     <option value="preventa" ${p.estado === 'preventa' ? 'selected' : ''}>PREVENTA</option>
