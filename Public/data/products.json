@@ -2,7 +2,7 @@
   "configuracion": {
     "marca": "Zairen Lab",
     "whatsappNumber": "+59174522654",
-    "baseUrl": "https://tu-dominio.com",
+    "baseUrl": "https://zairenlab-catalogo.vercel.app",
     "estados": {
       "nuevo": {
         "texto": "NUEVO",

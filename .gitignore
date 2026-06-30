@@ -25,6 +25,9 @@ zairen-backup.json
 *-backup.json
 *-export.json
 Public/data/*.bak
+# Scripts SQL de administración (contienen datos reales)
+*.sql
+Public/*.sql
 
 # ----------------------------------
 # Cache del navegador / localStorage dump
