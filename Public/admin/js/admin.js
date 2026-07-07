@@ -83,7 +83,7 @@ async function initAdmin() {
     currentData = await CatalogStorage.load();
     if (!currentData) {
         try {
-            const res = await fetch('../data/products.json');
+            const res = await fetch('/data/products.json');
             currentData = await res.json();
             await CatalogStorage.save(currentData);
         } catch (e) {
