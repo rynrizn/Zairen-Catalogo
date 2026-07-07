@@ -391,7 +391,7 @@ function drawInventarioTable() {
 
     document.querySelectorAll('.btn-edit').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            const id = e.target.dataset.id;
+            const id = e.currentTarget.dataset.id;
             const prod = currentData.productos.find(x => x.id === id);
             if (prod) cargarParaEditar(prod);
         });
@@ -399,7 +399,7 @@ function drawInventarioTable() {
 
     document.querySelectorAll('.btn-del').forEach(btn => {
         btn.addEventListener('click', async (e) => {
-            const id = e.target.dataset.id;
+            const id = e.currentTarget.dataset.id;
             if (confirm("¿Estás seguro de eliminar este producto?")) {
                 const backup = [...currentData.productos];
                 currentData.productos = currentData.productos.filter(x => x.id !== id);
@@ -448,8 +448,16 @@ function cargarParaEditar(prod) {
     document.getElementById('btn-cancelar-edicion').style.display = 'inline-flex';
     document.querySelector('#view-agregar h2').textContent = 'Editar Producto';
     document.querySelector('#view-agregar p').textContent = 'Modifica los datos del artículo existente.';
-    document.getElementById('add-seccion-nueva').style.display = 'none';
-    document.getElementById('add-tipo-nuevo').style.display = 'none';
+    
+    // Clear hidden inputs and remove required to prevent form validation errors
+    const inputNuevaSeccion = document.getElementById('add-seccion-nueva');
+    const inputNuevoTipo = document.getElementById('add-tipo-nuevo');
+    inputNuevaSeccion.style.display = 'none';
+    inputNuevaSeccion.required = false;
+    inputNuevaSeccion.value = '';
+    inputNuevoTipo.style.display = 'none';
+    inputNuevoTipo.required = false;
+    inputNuevoTipo.value = '';
     
     showView('view-agregar');
 }
@@ -530,9 +538,15 @@ function setupFormAgregar() {
             tallas: tallasArr,
             imagen: document.getElementById('add-imagen').value,
             descripcion: document.getElementById('add-desc').value,
-            detalles: { material: "No especificado", fit: "Standard", cuidado: "Ver etiqueta" },
-            tags: [seccion, tipo],
-            destacado: false
+            detalles: editProductId 
+                ? (currentData.productos.find(p => p.id === editProductId) || {}).detalles || { material: "No especificado", fit: "Standard", cuidado: "Ver etiqueta" }
+                : { material: "No especificado", fit: "Standard", cuidado: "Ver etiqueta" },
+            tags: editProductId
+                ? (currentData.productos.find(p => p.id === editProductId) || {}).tags || [seccion, tipo]
+                : [seccion, tipo],
+            destacado: editProductId
+                ? (currentData.productos.find(p => p.id === editProductId) || {}).destacado || false
+                : false
         };
 
         let rollbackFn = null;

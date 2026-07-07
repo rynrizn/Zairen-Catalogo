@@ -50,7 +50,7 @@ function openProductDetail(producto, configuracion) {
 
     // Escapar variables de texto
     const escNombre = escapeHTML(producto.nombre);
-    const escDesc = escapeHTML(producto.descripcion);
+    const escDesc = escapeHTML(producto.descripcion).replace(/\n/g, '<br>');
     const escId = escapeHTML(producto.id);
     const escSeccion = escapeHTML(seccionNombre);
     const escTipo = escapeHTML(producto.tipo || '');
@@ -115,26 +115,10 @@ function openProductDetail(producto, configuracion) {
 
             <!-- ===== ROW 2 ===== -->
 
-            <!-- BOX 4: Composition / Materials -->
+            <!-- BOX 4: Descripción del Producto -->
             <div class="bento-cell bento-composition">
-                <span class="bento-cell-label">COMPOSICIÓN</span>
-                <ul class="bento-comp-list">
-                    ${escMaterial ? `
-                    <li>
-                        <span class="material-symbols-outlined bento-comp-icon">eco</span>
-                        <div>
-                            <strong>${escMaterial}</strong>
-                        </div>
-                    </li>` : ''}
-                    ${escCuidado ? `
-                    <li>
-                        <span class="material-symbols-outlined bento-comp-icon">laundry</span>
-                        <div>
-                            <strong>Cuidado</strong>
-                            <span>${escCuidado}</span>
-                        </div>
-                    </li>` : ''}
-                </ul>
+                <span class="bento-cell-label">DESCRIPCIÓN</span>
+                <p style="font-size: 14px; color: var(--z-text-secondary); line-height: 1.6; margin: 0; white-space: pre-line;">${escDesc}</p>
             </div>
 
             <!-- BOX 5: Size Selector -->
@@ -153,7 +137,6 @@ function openProductDetail(producto, configuracion) {
                 <div class="bento-price-block">
                     <span class="bento-cell-label">PRECIO</span>
                     <span class="bento-price-value">$${escPrecio}</span>
-                    <span class="bento-price-currency">${escMoneda}</span>
                 </div>
                 <div class="bento-actions-btns">
                     <button id="btn-wsp-detail" class="bento-btn-wsp" ${isAgotado ? 'disabled' : ''} style="display:inline-flex; align-items:center; justify-content:center; gap:8px;">
