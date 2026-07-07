@@ -4,7 +4,8 @@
   "routes": [
     {
       "src": "/admin",
-      "dest": "/admin/index.html"
+      "status": 308,
+      "headers": { "Location": "/admin/" }
     },
     {
       "src": "/admin/(.*)",

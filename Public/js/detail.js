@@ -171,7 +171,6 @@ function openProductDetail(producto, configuracion) {
                 </div>
             </div>
         </div>
-    `;/div>
     `;
 
     // Attach WhatsApp click handler
