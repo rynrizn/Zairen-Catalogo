@@ -105,7 +105,6 @@ function openProductDetail(producto, configuracion) {
                         <span class="tag-muted">${escTipo}</span>
                     </div>
                     <h2 class="bento-title">${escNombre}</h2>
-                    <p class="bento-desc">${escDesc}</p>
                 </div>
                 <div class="bento-footer-row">
                     <span class="bento-id">ID: ${escId}</span>
