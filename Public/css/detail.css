@@ -21,11 +21,10 @@
 /* === Bento Grid Layout === */
 .detail-bento {
   display: grid;
-  grid-template-columns: 1.2fr 1fr 1fr;
-  grid-template-rows: auto 1fr auto;
+  grid-template-columns: 1.2fr 1.3fr 0.7fr;
+  grid-template-rows: auto auto auto;
   gap: 12px;
   padding: 16px;
-  height: 520px;
   box-sizing: border-box;
 }
 
@@ -54,6 +53,7 @@
   align-items: center;
   justify-content: center;
   height: 100%;
+  min-height: 420px;
   background: var(--z-surface-alt);
 }
 .bento-image img {
@@ -254,6 +254,7 @@
   padding: 24px;
   display: flex;
   flex-direction: column;
+  align-self: start;
 }
 .bento-sizes-header {
   display: flex;
