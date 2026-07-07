@@ -85,7 +85,26 @@ async function guardarEnSupabase(data) {
         alert('⚠️ NO SE GUARDÓ en la base de datos.\n\n' + result.error);
         return false;
     }
+    broadcastUpdate();
     return true;
+}
+
+function broadcastUpdate() {
+    const sb = window._supabase;
+    if (sb) {
+        const channel = sb.channel('catalog-broadcast');
+        channel.subscribe((status) => {
+            if (status === 'SUBSCRIBED') {
+                channel.send({
+                    type: 'broadcast',
+                    event: 'update',
+                    payload: { type: 'catalog_change', timestamp: Date.now() }
+                }).then(() => {
+                    console.log('[Realtime Admin] Broadcast de actualización enviado.');
+                });
+            }
+        });
+    }
 }
 
 async function initAdmin() {

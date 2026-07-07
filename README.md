@@ -40,9 +40,7 @@ CatalogoV0/
 │   │   └── tailwind-config.js  # Configuración de Tailwind (utilidades)
 │   ├── data/
 │   │   └── products.json       # Fallback local (sin Supabase activo)
-│   ├── assets/                 # Imágenes de productos
-│   └── Indicaciones_Supabase.md  # Manual técnico de integración
-└── MANUAL_CATALOGO.md          # Manual de uso para el dueño del catálogo
+│   └── assets/                 # Imágenes de productos
 ```
 
 ---
@@ -86,23 +84,6 @@ CatalogoV0/
 
 ---
 
-## Base de Datos (Supabase)
-
-El proyecto usa las siguientes tablas en PostgreSQL con Row Level Security (RLS) habilitado:
-
-| Tabla | Descripción |
-|---|---|
-| `configuracion` | Ajustes globales: color, blur, orden de secciones, WhatsApp |
-| `productos` | Catálogo completo con todos sus campos |
-| `notificaciones` | Alertas enviadas desde el admin |
-| `stats_views` | Visitas diarias al catálogo |
-| `stats_favoritos` | Conteo de favoritos por producto |
-| `stats_wsp` | Clics en WhatsApp por producto |
-
-> Para el esquema SQL completo y los pasos de configuración, ver [`Public/Indicaciones_Supabase.md`](Public/Indicaciones_Supabase.md).
-
----
-
 ## Configuración Inicial
 
 ### Requisitos
@@ -118,10 +99,7 @@ El proyecto usa las siguientes tablas en PostgreSQL con Row Level Security (RLS)
    ```
 
 2. **Configurar Supabase**  
-   Seguir el manual [`Public/Indicaciones_Supabase.md`](Public/Indicaciones_Supabase.md) para:
-   - Crear el proyecto en Supabase.
-   - Ejecutar el script SQL para crear las tablas.
-   - Crear el usuario administrador en Authentication.
+   Crea la base de datos y ejecuta los scripts de definición de tablas. Crea el usuario administrador en Authentication.
 
 3. **Credenciales ya integradas**  
    Las credenciales de Supabase (URL + anon key) están integradas en [`Public/js/storage.js`](Public/js/storage.js). Si necesitas cambiar de proyecto, edita las constantes `SUPABASE_URL` y `SUPABASE_ANON_KEY` en ese archivo.
@@ -156,9 +134,7 @@ El proyecto usa las siguientes tablas en PostgreSQL con Row Level Security (RLS)
 
 ---
 
-## Personalización de Contenido
-
-Para gestionar el catálogo sin tocar código, usa el panel admin (`/admin/`). Para modificaciones de diseño o datos globales, ver [`MANUAL_CATALOGO.md`](MANUAL_CATALOGO.md).
+Para gestionar el catálogo sin tocar código, usa el panel admin (`/admin/`).
 
 ---
 

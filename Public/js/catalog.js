@@ -883,6 +883,26 @@ function setupRealtimeCatalog() {
         })
         .subscribe();
 
+    // Listen to broadcast changes (instant client-to-client updates)
+    sb.channel('catalog-broadcast')
+        .on('broadcast', { event: 'update' }, async (payload) => {
+            console.log('[Realtime Broadcast] Cambio recibido:', payload);
+            
+            const data = await CatalogStorage.load();
+            if (data) {
+                if (data.productos) {
+                    allProductos = data.productos;
+                    catalogConfig = data.configuracion || { estados: {} };
+                    renderCatalog();
+                }
+                if (data.notificaciones) {
+                    setupNotifications(data.notificaciones, true);
+                }
+                notifyUpdateAvailable();
+            }
+        })
+        .subscribe();
+
     realtimeSubscribed = true;
 }
 
