@@ -109,16 +109,13 @@ const CatalogStorage = {
 
   // ============================================================
   // GUARDADO ASÍNCRONO — Sincroniza datos hacia Supabase
+  // Solo guarda en caché local SI Supabase confirma el guardado.
   // ============================================================
   async save(data) {
-    if (!data) return false;
-
-    // Siempre guardar copia local
-    try { localStorage.setItem('zairen-catalog-backup', JSON.stringify(data)); } catch(e) {}
+    if (!data) return { ok: false, error: 'No hay datos para guardar.' };
 
     if (!_supabaseClient) {
-      console.warn('[Zairen CMS] Supabase no disponible. Guardado solo localmente.');
-      return true;
+      return { ok: false, error: 'Supabase no está disponible. Verifica tu conexión a internet y recarga la página.' };
     }
 
     try {
@@ -191,10 +188,19 @@ const CatalogStorage = {
         }
       }
 
-      return true;
+      // ✅ Supabase confirmó — AHORA sí guardar copia local de respaldo
+      try { localStorage.setItem('zairen-catalog-backup', JSON.stringify(data)); } catch(e) {}
+      return { ok: true };
+
     } catch (e) {
       console.error('[Zairen CMS] Error sincronizando a Supabase:', e);
-      return false;
+      const msg = e.message || e.details || 'Error desconocido al conectar con la base de datos.';
+      const code = e.code || '';
+      let userMsg = `Error al guardar en la base de datos: ${msg}`;
+      if (code === '42501' || (typeof msg === 'string' && msg.includes('policy'))) {
+        userMsg = 'Error de permisos (RLS). Ejecuta el script SQL de reparación en Supabase. Ver consola para detalles.';
+      }
+      return { ok: false, error: userMsg, raw: e };
     }
   },
 

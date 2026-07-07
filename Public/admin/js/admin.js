@@ -78,6 +78,16 @@ let editProductId = null;
 let inventarioTimeout = null;
 let stockTimeout = null;
 
+// Helper centralizado: guarda en Supabase y muestra error si falla
+async function guardarEnSupabase(data) {
+    const result = await CatalogStorage.save(data);
+    if (!result.ok) {
+        alert('⚠️ NO SE GUARDÓ en la base de datos.\n\n' + result.error);
+        return false;
+    }
+    return true;
+}
+
 async function initAdmin() {
     // Cargar datos desde Supabase (con fallback a respaldo local)
     currentData = await CatalogStorage.load();
@@ -85,7 +95,7 @@ async function initAdmin() {
         try {
             const res = await fetch('/data/products.json');
             currentData = await res.json();
-            await CatalogStorage.save(currentData);
+            await guardarEnSupabase(currentData);
         } catch (e) {
             console.error("No se pudo cargar products.json", e);
             currentData = { configuracion: { colorEstado: "#5C88B0" }, productos: [] };
@@ -121,7 +131,7 @@ function setupBlurConfig() {
         configBlur.value = currentData.configuracion.blurIntensity || "20px";
         configBlur.addEventListener('change', async (e) => {
             currentData.configuracion.blurIntensity = e.target.value;
-            await CatalogStorage.save(currentData);
+            await guardarEnSupabase(currentData);
         });
     }
 }
@@ -196,7 +206,7 @@ function renderSectionOrderList() {
                 currentOrder[index] = currentOrder[index - 1];
                 currentOrder[index - 1] = temp;
                 currentData.configuracion.ordenSecciones = currentOrder;
-                await CatalogStorage.save(currentData);
+                await guardarEnSupabase(currentData);
                 renderSectionOrderList();
             });
         }
@@ -207,7 +217,7 @@ function renderSectionOrderList() {
                 currentOrder[index] = currentOrder[index + 1];
                 currentOrder[index + 1] = temp;
                 currentData.configuracion.ordenSecciones = currentOrder;
-                await CatalogStorage.save(currentData);
+                await guardarEnSupabase(currentData);
                 renderSectionOrderList();
             });
         }
@@ -221,7 +231,7 @@ function setupConfigSectionOrder() {
     if (enableToggle) {
         enableToggle.addEventListener('change', async (e) => {
             currentData.configuracion.ordenSeccionesEnabled = e.target.checked;
-            await CatalogStorage.save(currentData);
+            await guardarEnSupabase(currentData);
             renderSectionOrderList();
         });
     }
@@ -391,8 +401,13 @@ function drawInventarioTable() {
         btn.addEventListener('click', async (e) => {
             const id = e.target.dataset.id;
             if (confirm("¿Estás seguro de eliminar este producto?")) {
+                const backup = [...currentData.productos];
                 currentData.productos = currentData.productos.filter(x => x.id !== id);
-                await CatalogStorage.save(currentData);
+                const saved = await guardarEnSupabase(currentData);
+                if (!saved) {
+                    currentData.productos = backup;
+                    return;
+                }
                 updateTipoFilterDropdown();
                 renderInventario(true);
                 renderStock(true);
@@ -520,20 +535,34 @@ function setupFormAgregar() {
             destacado: false
         };
 
+        let rollbackFn = null;
+
         if (editProductId) {
             dataProd.id = editProductId;
             const index = currentData.productos.findIndex(p => p.id === editProductId);
+            const oldProd = index !== -1 ? { ...currentData.productos[index] } : null;
             if(index !== -1) currentData.productos[index] = dataProd;
-            alert("Producto actualizado exitosamente!");
-            document.getElementById('btn-cancelar-edicion').click();
+            rollbackFn = () => { if (oldProd && index !== -1) currentData.productos[index] = oldProd; };
         } else {
             dataProd.id = `${seccion}-${Date.now().toString().slice(-4)}`;
             currentData.productos.push(dataProd);
-            alert("Producto agregado exitosamente!");
+            rollbackFn = () => { currentData.productos = currentData.productos.filter(p => p.id !== dataProd.id); };
+        }
+
+        const saved = await guardarEnSupabase(currentData);
+        if (!saved) {
+            rollbackFn();
+            return;
+        }
+
+        if (editProductId) {
+            alert("✅ Producto actualizado exitosamente!");
+            document.getElementById('btn-cancelar-edicion').click();
+        } else {
+            alert("✅ Producto agregado exitosamente!");
             form.reset();
         }
-        
-        await CatalogStorage.save(currentData);
+
         updateTipoFilterDropdown();
         renderInventario();
         renderStock();
@@ -640,8 +669,14 @@ function drawStockGrid() {
             const newVal = e.target.value;
             const p = currentData.productos.find(x => x.id === id);
             if(p) {
+                const oldEstado = p.estado;
                 p.estado = newVal;
-                await CatalogStorage.save(currentData);
+                const saved = await guardarEnSupabase(currentData);
+                if (!saved) {
+                    p.estado = oldEstado;
+                    e.target.value = oldEstado;
+                    return;
+                }
                 renderInventario(true);
             }
         });
@@ -665,11 +700,15 @@ function setupNotificaciones() {
         };
         
         if (!currentData.notificaciones) currentData.notificaciones = [];
-        currentData.notificaciones.unshift(nuevaNotif); // Añadir arriba
+        currentData.notificaciones.unshift(nuevaNotif);
         
-        await CatalogStorage.save(currentData);
+        const saved = await guardarEnSupabase(currentData);
+        if (!saved) {
+            currentData.notificaciones.shift();
+            return;
+        }
         form.reset();
-        alert("¡Notificación enviada en tiempo real!");
+        alert("✅ ¡Notificación enviada en tiempo real!");
     });
 }
 
@@ -701,7 +740,7 @@ function renderColorPicker() {
             swatch.classList.add('active');
             
             currentData.configuracion.colorEstado = color;
-            await CatalogStorage.save(currentData);
+            await guardarEnSupabase(currentData);
             
             const btn = document.createElement('div');
             btn.textContent = "Guardado";
