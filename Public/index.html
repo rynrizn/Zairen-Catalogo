@@ -166,6 +166,25 @@
             border-color: var(--z-color-status);
             box-shadow: 0 0 15px var(--z-color-status);
         }
+        
+        @keyframes pulse-highlight {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 20, 60, 0.4); }
+            70% { transform: scale(1.08); box-shadow: 0 0 0 8px rgba(220, 20, 60, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 20, 60, 0); }
+        }
+        .pulse-reload {
+            animation: pulse-highlight 1.5s infinite !important;
+            color: var(--z-crimson) !important;
+            background: var(--z-surface-alt) !important;
+            border: 1px solid var(--z-crimson) !important;
+        }
+        @keyframes blink-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+        .blink-badge {
+            animation: blink-dot 1.2s ease infinite !important;
+        }
 
         /* ================================================ */
         /* COLLAPSIBLE SECTIONS                             */
@@ -844,6 +863,16 @@
                     <div style="font-size:12px; color:var(--z-text-secondary); text-align:center; padding:10px;">No hay notificaciones nuevas</div>
                 </div>
             </div>
+            <button id="nav-reload-btn" title="Actualizar Catálogo" style="
+                display:flex; align-items:center; justify-content:center; position:relative;
+                width:36px; height:36px; border-radius:50%;
+                background:transparent; border:none; cursor:pointer;
+                color:var(--z-text-secondary); transition: all 0.3s ease;
+            " onmouseover="this.style.color='var(--z-crimson)'; this.style.background='var(--z-surface-alt)'"
+               onmouseout="if(!this.classList.contains('pulse-reload')) { this.style.color='var(--z-text-secondary)'; this.style.background='transparent' }">
+                <span class="material-symbols-outlined" style="font-size:20px;">refresh</span>
+                <span id="reload-badge" style="display:none; position:absolute; top:6px; right:8px; width:8px; height:8px; background:var(--z-crimson); border-radius:50%;"></span>
+            </button>
             <button id="nav-qr-btn" title="Compartir QR" style="
                 display:flex; align-items:center; justify-content:center;
                 width:36px; height:36px; border-radius:50%;

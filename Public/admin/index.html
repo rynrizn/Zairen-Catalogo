@@ -109,7 +109,8 @@
                     </select>
                     
                     <select id="sort-inventario" class="admin-input admin-select" style="max-width: 200px; margin-bottom: 0;">
-                        <option value="default">Ordenar por...</option>
+                        <option value="date-desc">Fecha (Más recientes)</option>
+                        <option value="date-asc">Fecha (Más antiguos)</option>
                         <option value="name-asc">Nombre (A-Z)</option>
                         <option value="name-desc">Nombre (Z-A)</option>
                         <option value="price-asc">Precio (Menor a Mayor)</option>
@@ -241,7 +242,8 @@
                     </select>
                     
                     <select id="sort-stock" class="admin-input admin-select" style="max-width: 200px; margin-bottom: 0;">
-                        <option value="default">Ordenar por...</option>
+                        <option value="date-desc">Fecha (Más recientes)</option>
+                        <option value="date-asc">Fecha (Más antiguos)</option>
                         <option value="name-asc">Nombre (A-Z)</option>
                         <option value="name-desc">Nombre (Z-A)</option>
                         <option value="price-asc">Precio (Menor a Mayor)</option>
@@ -261,31 +263,44 @@
                     <p>Envía avisos o encuestas en tiempo real al catálogo público.</p>
                 </div>
                 
-                <div class="bento-cell" style="padding: 32px; max-width: 600px;">
-                    <form id="form-notificaciones">
-                        <div class="form-group">
-                            <label>Título de la Notificación</label>
-                            <input type="text" id="notif-titulo" class="admin-input" placeholder="Ej: ¡Nueva Colección!" required>
+                <div class="notifications-layout" style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start;">
+                    <!-- Columna Izquierda: Formulario -->
+                    <div class="bento-cell" style="padding: 32px;">
+                        <h3 id="notif-form-title" style="font-family: var(--z-font-display); font-size: 18px; margin-bottom: 16px; text-transform: uppercase;">Enviar Notificación</h3>
+                        <form id="form-notificaciones">
+                            <div class="form-group">
+                                <label>Título de la Notificación</label>
+                                <input type="text" id="notif-titulo" class="admin-input" placeholder="Ej: ¡Nueva Colección!" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Mensaje Corto</label>
+                                <textarea id="notif-mensaje" class="admin-input admin-textarea" placeholder="Ej: Acabamos de subir la colección de Anime, revísala ahora." required style="min-height: 80px;"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Link Opcional (URL)</label>
+                                <input type="url" id="notif-link" class="admin-input" placeholder="https://forms.gle/tu-encuesta">
+                            </div>
+                            <div class="form-group">
+                                <label>Texto del Link</label>
+                                <input type="text" id="notif-link-texto" class="admin-input" placeholder="Ej: Responder Encuesta">
+                            </div>
+                            <div style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 12px; align-items: center;">
+                                <button type="button" id="btn-cancelar-notif" class="action-button secondary" style="display: none;">Cancelar</button>
+                                <button type="submit" id="btn-guardar-notif" class="action-button">
+                                    <span class="material-symbols-outlined" style="margin-right: 8px;">send</span>
+                                    <span>Enviar Notificación</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Columna Derecha: Historial -->
+                    <div class="bento-cell" style="padding: 32px; display: flex; flex-direction: column; gap: 16px; box-sizing: border-box; max-height: 560px;">
+                        <h3 style="font-family: var(--z-font-display); font-size: 18px; text-transform: uppercase; margin-bottom: 8px;">Historial de Notificaciones</h3>
+                        <div id="notif-historial-list" style="overflow-y: auto; display: flex; flex-direction: column; gap: 12px; flex: 1; padding-right: 8px;">
+                            <!-- Inyectado via JS -->
                         </div>
-                        <div class="form-group">
-                            <label>Mensaje Corto</label>
-                            <textarea id="notif-mensaje" class="admin-input admin-textarea" placeholder="Ej: Acabamos de subir la colección de Anime, revísala ahora." required style="min-height: 80px;"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label>Link Opcional (URL)</label>
-                            <input type="url" id="notif-link" class="admin-input" placeholder="https://forms.gle/tu-encuesta">
-                        </div>
-                        <div class="form-group">
-                            <label>Texto del Link</label>
-                            <input type="text" id="notif-link-texto" class="admin-input" placeholder="Ej: Responder Encuesta">
-                        </div>
-                        <div style="margin-top: 24px; display: flex; justify-content: flex-end;">
-                            <button type="submit" class="action-button">
-                                <span class="material-symbols-outlined" style="margin-right: 8px;">send</span>
-                                Enviar Notificación
-                            </button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
             </section>
             

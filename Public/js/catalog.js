@@ -11,6 +11,37 @@ let lastSeenNotif = 0;
 let catalogSearchQuery = '';  // current search query
 let renderTimeout = null;     // timeout for debounced nothing loader rendering
 
+// Global Favorite Helpers
+window.isProductFavorite = function(productId) {
+    return favorites.includes(productId);
+};
+
+window.toggleFavoriteGlobal = function(productId) {
+    const idx = favorites.indexOf(productId);
+    const isAdded = idx === -1;
+    if (isAdded) {
+        favorites.push(productId);
+    } else {
+        favorites = favorites.filter(id => id !== productId);
+    }
+    localStorage.setItem('zairen-favoritos', JSON.stringify(favorites));
+    updateFavNavbarBadge();
+    trackFavorite(productId, isAdded);
+    
+    // Update all matching catalog cards
+    document.querySelectorAll(`.fav-btn[data-id="${productId}"]`).forEach(btn => {
+        btn.classList.toggle('is-active', isAdded);
+        const icon = btn.querySelector('span');
+        if (icon) icon.style.fontVariationSettings = `'FILL' ${isAdded ? 1 : 0}`;
+    });
+    
+    if (activeFilter === 'favoritos') {
+        setTimeout(() => renderCatalog(), 300);
+    }
+    
+    return isAdded;
+};
+
 async function initCatalog() {
     // Load local storage states
     const favStored = localStorage.getItem('zairen-favoritos');
@@ -84,6 +115,10 @@ async function initCatalog() {
     
     // Track Page View
     trackPageView(data);
+
+    // Realtime & Reload Button Init
+    initReloadButton();
+    setupRealtimeCatalog();
 }
 
 function setupNotifications(notifs, isUpdate = false) {
@@ -580,21 +615,8 @@ function createProductCard(producto, animIndex) {
 
     favBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        const icon = favBtn.querySelector('span');
-        let isAdded = false;
-        if (favorites.includes(producto.id)) {
-            favorites = favorites.filter(id => id !== producto.id);
-            icon.style.fontVariationSettings = "'FILL' 0";
-            favBtn.classList.remove('is-active');
-            if (activeFilter === 'favoritos') {
-                setTimeout(() => renderCatalog(), 300); // Re-render gently if removed from favorites view
-            }
-        } else {
-            favorites.push(producto.id);
-            icon.style.fontVariationSettings = "'FILL' 1";
-            favBtn.classList.add('is-active');
-            isAdded = true;
-            
+        const isAdded = window.toggleFavoriteGlobal(producto.id);
+        if (isAdded) {
             // Show blur overlay animation
             blurOverlay.style.visibility = 'visible';
             blurOverlay.style.opacity = '1';
@@ -603,9 +625,6 @@ function createProductCard(producto, animIndex) {
                 setTimeout(() => { blurOverlay.style.visibility = 'hidden'; }, 400);
             }, 1500);
         }
-        localStorage.setItem('zairen-favoritos', JSON.stringify(favorites));
-        updateFavNavbarBadge();
-        trackFavorite(producto.id, isAdded);
     });
 
     const detailBtn = card.querySelector('[data-action="detail"]');
@@ -812,5 +831,68 @@ function matchesSearch(product, query) {
     return nameMatch || descMatch || typeMatch || tagsMatch;
 }
 
-// Bootstrap
+function initReloadButton() {
+    const reloadBtn = document.getElementById('nav-reload-btn');
+    const badge = document.getElementById('reload-badge');
+    if (!reloadBtn) return;
+    
+    reloadBtn.onclick = async () => {
+        reloadBtn.classList.remove('pulse-reload');
+        if (badge) {
+            badge.style.display = 'none';
+            badge.classList.remove('blink-badge');
+        }
+        await initCatalog();
+    };
+}
+
+let realtimeSubscribed = false;
+function setupRealtimeCatalog() {
+    if (realtimeSubscribed) return;
+    
+    const sb = CatalogStorage.getClient();
+    if (!sb) return;
+
+    // Listen to changes on 'productos'
+    sb.channel('public-productos-changes')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'productos' }, async (payload) => {
+            console.log('[Realtime] Cambio detectado en productos:', payload);
+            
+            const data = await CatalogStorage.load();
+            if (data && data.productos) {
+                allProductos = data.productos;
+                catalogConfig = data.configuracion || { estados: {} };
+                
+                // Soft update in-place
+                renderCatalog();
+                notifyUpdateAvailable();
+            }
+        })
+        .subscribe();
+
+    // Listen to changes on 'notificaciones'
+    sb.channel('public-notificaciones-changes')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'notificaciones' }, async (payload) => {
+            console.log('[Realtime] Cambio detectado en notificaciones:', payload);
+            
+            const data = await CatalogStorage.load();
+            if (data && data.notificaciones) {
+                setupNotifications(data.notificaciones, true);
+                notifyUpdateAvailable();
+            }
+        })
+        .subscribe();
+
+    realtimeSubscribed = true;
+}
+
+function notifyUpdateAvailable() {
+    const reloadBtn = document.getElementById('nav-reload-btn');
+    const badge = document.getElementById('reload-badge');
+    if (reloadBtn && badge) {
+        reloadBtn.classList.add('pulse-reload');
+        badge.style.display = 'block';
+        badge.classList.add('blink-badge');
+    }
+}
 document.addEventListener('DOMContentLoaded', initCatalog);

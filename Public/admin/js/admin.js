@@ -68,11 +68,11 @@ logoutBtn.addEventListener('click', async () => {
 // [BLOQUE ESTADO LOCAL]
 // ============================================================
 let currentData = null;
-let currentSort = 'default';
+let currentSort = 'date-desc';
 let activeTypeFilter = 'todos';
 let inventarioSearchQuery = '';
 let activeStockTypeFilter = 'todos';
-let currentStockSort = 'default';
+let currentStockSort = 'date-desc';
 let stockSearchQuery = '';
 let editProductId = null;
 let inventarioTimeout = null;
@@ -123,6 +123,8 @@ async function initAdmin() {
     setupNotificaciones();
     setupBlurConfig();
     setupConfigSectionOrder();
+    renderNotificacionesHistorial();
+    setupRealtimeAdmin();
 }
 
 function setupBlurConfig() {
@@ -299,6 +301,12 @@ function getSortedProducts() {
     }
     
     // Apply sorting
+    if (currentSort === 'default' || currentSort === 'date-desc') {
+        prods.sort((a,b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+    }
+    if (currentSort === 'date-asc') {
+        prods.sort((a,b) => new Date(a.created_at || 0) - new Date(b.created_at || 0));
+    }
     if (currentSort === 'name-asc') prods.sort((a,b) => a.nombre.localeCompare(b.nombre));
     if (currentSort === 'name-desc') prods.sort((a,b) => b.nombre.localeCompare(a.nombre));
     if (currentSort === 'price-asc') prods.sort((a,b) => {
@@ -601,6 +609,12 @@ function getFilteredStockProducts() {
     }
     
     // Apply sorting
+    if (currentStockSort === 'default' || currentStockSort === 'date-desc') {
+        prods.sort((a,b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+    }
+    if (currentStockSort === 'date-asc') {
+        prods.sort((a,b) => new Date(a.created_at || 0) - new Date(b.created_at || 0));
+    }
     if (currentStockSort === 'name-asc') prods.sort((a,b) => a.nombre.localeCompare(b.nombre));
     if (currentStockSort === 'name-desc') prods.sort((a,b) => b.nombre.localeCompare(a.nombre));
     if (currentStockSort === 'price-asc') prods.sort((a,b) => {
@@ -697,33 +711,193 @@ function drawStockGrid() {
     });
 }
 
-// ============================================================
-// [BLOQUE NOTIFICACIONES LOCALES]
-// ============================================================
+let editNotifId = null;
+
+function renderNotificacionesHistorial() {
+    const list = document.getElementById('notif-historial-list');
+    if (!list) return;
+    
+    list.innerHTML = '';
+    const notifs = currentData.notificaciones || [];
+    
+    if (notifs.length === 0) {
+        list.innerHTML = '<p style="color:var(--z-text-secondary); text-align:center; padding:20px; font-style:italic; font-size:13px;">No hay notificaciones registradas.</p>';
+        return;
+    }
+    
+    notifs.forEach(n => {
+        const item = document.createElement('div');
+        item.style.cssText = 'padding:14px; background:var(--z-surface-alt); border:1px solid var(--z-border); border-radius:var(--z-radius-sm); position:relative; box-sizing:border-box;';
+        
+        const escTitulo = escapeHTML(n.titulo);
+        const escMensaje = escapeHTML(n.mensaje);
+        const escLink = n.link ? escapeHTML(n.link) : '';
+        const escLinkTexto = n.linkTexto ? escapeHTML(n.linkTexto) : 'Ver Enlace';
+        const dateStr = new Date(n.fecha).toLocaleString('es-CL');
+        
+        item.innerHTML = `
+            <div style="padding-right: 64px;">
+                <h4 style="font-weight:600; font-size:13px; margin-bottom:4px; color:var(--z-text-primary);">${escTitulo}</h4>
+                <p style="font-size:12px; color:var(--z-text-secondary); line-height:1.4; margin-bottom:6px;">${escMensaje}</p>
+                ${n.link ? `<a href="${escLink}" target="_blank" style="font-size:11px; color:var(--z-crimson); text-decoration:none; font-family:\'JetBrains Mono\',monospace; font-weight:600;">${escLinkTexto}</a>` : ''}
+                <div style="font-size:10px; color:var(--z-text-secondary); margin-top:8px; font-family:\'JetBrains Mono\',monospace;">${dateStr}</div>
+            </div>
+            <div style="position:absolute; top:12px; right:12px; display:flex; gap:4px;">
+                <button class="icon-btn btn-edit-notif" data-id="${n.id}" title="Editar" style="width:28px; height:28px;">
+                    <span class="material-symbols-outlined" style="font-size:16px; pointer-events:none;">edit</span>
+                </button>
+                <button class="icon-btn btn-del-notif" data-id="${n.id}" title="Eliminar" style="width:28px; height:28px;">
+                    <span class="material-symbols-outlined" style="font-size:16px; pointer-events:none;">delete</span>
+                </button>
+            </div>
+        `;
+        list.appendChild(item);
+    });
+    
+    // Asignar listeners
+    list.querySelectorAll('.btn-edit-notif').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const id = e.currentTarget.dataset.id;
+            const notif = currentData.notificaciones.find(n => n.id === id);
+            if (notif) cargarNotifParaEditar(notif);
+        });
+    });
+    
+    list.querySelectorAll('.btn-del-notif').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            const id = e.currentTarget.dataset.id;
+            if (confirm('¿Estás seguro de eliminar esta notificación?')) {
+                const backup = [...currentData.notificaciones];
+                currentData.notificaciones = currentData.notificaciones.filter(n => n.id !== id);
+                const saved = await guardarEnSupabase(currentData);
+                if (!saved) {
+                    currentData.notificaciones = backup;
+                    return;
+                }
+                renderNotificacionesHistorial();
+                if (editNotifId === id) {
+                    cancelarEdicionNotif();
+                }
+            }
+        });
+    });
+}
+
+function cargarNotifParaEditar(notif) {
+    editNotifId = notif.id;
+    document.getElementById('notif-titulo').value = notif.titulo;
+    document.getElementById('notif-mensaje').value = notif.mensaje;
+    document.getElementById('notif-link').value = notif.link || '';
+    document.getElementById('notif-link-texto').value = notif.linkTexto || '';
+    
+    document.getElementById('notif-form-title').textContent = 'Editar Notificación';
+    document.getElementById('btn-cancelar-notif').style.display = 'inline-flex';
+    document.querySelector('#btn-guardar-notif span').textContent = 'Guardar Cambios';
+}
+
+function cancelarEdicionNotif() {
+    editNotifId = null;
+    document.getElementById('form-notificaciones').reset();
+    document.getElementById('notif-form-title').textContent = 'Enviar Notificación';
+    document.getElementById('btn-cancelar-notif').style.display = 'none';
+    document.querySelector('#btn-guardar-notif span').textContent = 'Enviar Notificación';
+}
+
 function setupNotificaciones() {
     const form = document.getElementById('form-notificaciones');
+    const cancelBtn = document.getElementById('btn-cancelar-notif');
+    
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+            cancelarEdicionNotif();
+        });
+    }
+    
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const nuevaNotif = {
-            id: `notif-${Date.now()}`,
-            titulo: document.getElementById('notif-titulo').value,
-            mensaje: document.getElementById('notif-mensaje').value,
-            link: document.getElementById('notif-link').value,
-            linkTexto: document.getElementById('notif-link-texto').value,
-            fecha: Date.now()
-        };
         
-        if (!currentData.notificaciones) currentData.notificaciones = [];
-        currentData.notificaciones.unshift(nuevaNotif);
+        const title = document.getElementById('notif-titulo').value;
+        const msg = document.getElementById('notif-mensaje').value;
+        const link = document.getElementById('notif-link').value;
+        const linkText = document.getElementById('notif-link-texto').value;
+        
+        let rollbackFn = null;
+        
+        if (editNotifId) {
+            const index = currentData.notificaciones.findIndex(n => n.id === editNotifId);
+            const oldNotif = index !== -1 ? { ...currentData.notificaciones[index] } : null;
+            if (index !== -1) {
+                currentData.notificaciones[index] = {
+                    id: editNotifId,
+                    titulo: title,
+                    mensaje: msg,
+                    link: link,
+                    linkTexto: linkText,
+                    fecha: Date.now() // Actualizar fecha para que se envíe como nueva
+                };
+            }
+            rollbackFn = () => { if (oldNotif && index !== -1) currentData.notificaciones[index] = oldNotif; };
+        } else {
+            const nuevaNotif = {
+                id: `notif-${Date.now()}`,
+                titulo: title,
+                mensaje: msg,
+                link: link,
+                linkTexto: linkText,
+                fecha: Date.now()
+            };
+            if (!currentData.notificaciones) currentData.notificaciones = [];
+            currentData.notificaciones.unshift(nuevaNotif);
+            rollbackFn = () => { currentData.notificaciones.shift(); };
+        }
         
         const saved = await guardarEnSupabase(currentData);
         if (!saved) {
-            currentData.notificaciones.shift();
+            rollbackFn();
             return;
         }
+        
         form.reset();
-        alert("✅ ¡Notificación enviada en tiempo real!");
+        if (editNotifId) {
+            alert("✅ ¡Notificación actualizada!");
+            cancelarEdicionNotif();
+        } else {
+            alert("✅ ¡Notificación enviada en tiempo real!");
+        }
+        renderNotificacionesHistorial();
     });
+}
+
+let realtimeAdminSubscribed = false;
+function setupRealtimeAdmin() {
+    if (realtimeAdminSubscribed) return;
+    
+    const sb = window._supabase;
+    if (!sb) return;
+
+    sb.channel('admin-db-changes')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'productos' }, async (payload) => {
+            console.log('[Realtime Admin] Cambio en productos:', payload);
+            const freshData = await CatalogStorage.load();
+            if (freshData) {
+                currentData.productos = freshData.productos;
+                currentData.configuracion = freshData.configuracion;
+                updateTipoFilterDropdown();
+                renderInventario(true);
+                renderStock(true);
+            }
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'notificaciones' }, async (payload) => {
+            console.log('[Realtime Admin] Cambio en notificaciones:', payload);
+            const freshData = await CatalogStorage.load();
+            if (freshData) {
+                currentData.notificaciones = freshData.notificaciones;
+                renderNotificacionesHistorial();
+            }
+        })
+        .subscribe();
+        
+    realtimeAdminSubscribed = true;
 }
 
 // ============================================================

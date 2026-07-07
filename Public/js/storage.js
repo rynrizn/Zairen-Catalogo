@@ -66,7 +66,8 @@ const CatalogStorage = {
         descripcion: p.descripcion,
         detalles: p.detalles || {},
         tags: p.tags || [],
-        destacado: p.destacado
+        destacado: p.destacado,
+        created_at: p.created_at
       }));
 
       // Mapear Notificaciones
@@ -162,13 +163,27 @@ const CatalogStorage = {
       }
 
       // 3. Sincronizar Notificaciones
-      if (data.notificaciones && data.notificaciones.length > 0) {
-        const mapped = data.notificaciones.map(n => ({
-          id: n.id, titulo: n.titulo, mensaje: n.mensaje,
-          link: n.link || null, link_texto: n.linkTexto || null, fecha: n.fecha
-        }));
-        const { error } = await _supabaseClient.from('notificaciones').upsert(mapped);
-        if (error) throw error;
+      if (data.notificaciones) {
+        const { data: dbNotifs, error: listErr } = await _supabaseClient.from('notificaciones').select('id');
+        if (listErr) throw listErr;
+
+        const dbIds = (dbNotifs || []).map(n => n.id);
+        const currentIds = data.notificaciones.map(n => n.id);
+        const idsToDelete = dbIds.filter(id => !currentIds.includes(id));
+
+        if (idsToDelete.length > 0) {
+          const { error } = await _supabaseClient.from('notificaciones').delete().in('id', idsToDelete);
+          if (error) throw error;
+        }
+
+        if (data.notificaciones.length > 0) {
+          const mapped = data.notificaciones.map(n => ({
+            id: n.id, titulo: n.titulo, mensaje: n.mensaje,
+            link: n.link || null, link_texto: n.linkTexto || null, fecha: n.fecha
+          }));
+          const { error } = await _supabaseClient.from('notificaciones').upsert(mapped);
+          if (error) throw error;
+        }
       }
 
       // 4. Sincronizar Estadísticas

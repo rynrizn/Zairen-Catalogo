@@ -59,6 +59,7 @@ function openProductDetail(producto, configuracion) {
     const escMoneda = escapeHTML(producto.moneda || 'CLP');
     const escMaterial = producto.detalles && producto.detalles.material ? escapeHTML(producto.detalles.material) : '';
     const escCuidado = producto.detalles && producto.detalles.cuidado ? escapeHTML(producto.detalles.cuidado) : '';
+    const isFav = window.isProductFavorite ? window.isProductFavorite(producto.id) : false;
 
     overlayInner.innerHTML = `
         <!-- ============================================ -->
@@ -97,6 +98,25 @@ function openProductDetail(producto, configuracion) {
                 " onmouseover="this.style.color='var(--z-crimson)'; this.style.borderColor='var(--z-crimson)'"
                    onmouseout="this.style.color='var(--z-text-primary)'; this.style.borderColor='var(--z-border)'">
                     <span class="material-symbols-outlined" style="font-size: 20px;">qr_code_2</span>
+                </button>
+                <button class="bento-fav-trigger-btn" onclick="toggleDetailFavorite('${escId}', this)" title="Agregar a favoritos" style="
+                    position: absolute;
+                    top: 16px;
+                    right: 60px;
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 50%;
+                    background: var(--z-surface-alt);
+                    border: 1px solid var(--z-border);
+                    color: ${isFav ? 'var(--z-crimson)' : 'var(--z-text-primary)'};
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                " onmouseover="this.style.color='var(--z-crimson)'; this.style.borderColor='var(--z-crimson)'"
+                   onmouseout="if(!window.isProductFavorite || !window.isProductFavorite('${escId}')) { this.style.color='var(--z-text-primary)'; this.style.borderColor='var(--z-border)' }">
+                    <span class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'FILL' ${isFav ? 1 : 0};">favorite</span>
                 </button>
                 <div style="padding-right: 36px;">
                     <div class="bento-section-tag">
@@ -278,3 +298,20 @@ document.addEventListener('keydown', (e) => {
         }
     }
 });
+
+window.toggleDetailFavorite = function(productId, btnEl) {
+    if (window.toggleFavoriteGlobal) {
+        const isAdded = window.toggleFavoriteGlobal(productId);
+        const icon = btnEl.querySelector('span');
+        if (icon) {
+            icon.style.fontVariationSettings = `'FILL' ${isAdded ? 1 : 0}`;
+        }
+        if (isAdded) {
+            btnEl.style.color = 'var(--z-crimson)';
+            btnEl.style.borderColor = 'var(--z-crimson)';
+        } else {
+            btnEl.style.color = 'var(--z-text-primary)';
+            btnEl.style.borderColor = 'var(--z-border)';
+        }
+    }
+};
