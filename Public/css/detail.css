@@ -21,10 +21,12 @@
 /* === Bento Grid Layout === */
 .detail-bento {
   display: grid;
-  grid-template-columns: 5fr 4fr 3fr;
-  grid-template-rows: auto auto auto;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  grid-template-rows: auto 1fr auto;
   gap: 12px;
   padding: 16px;
+  height: 520px;
+  box-sizing: border-box;
 }
 
 /* Row assignments */
@@ -51,7 +53,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 480px;
+  height: 100%;
   background: var(--z-surface-alt);
 }
 .bento-image img {
@@ -197,6 +199,7 @@
   padding: 24px;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 }
 .bento-cell-label {
   font-family: 'JetBrains Mono', monospace;
@@ -425,6 +428,8 @@
 @media (max-width: 900px) {
   .detail-bento {
     grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto auto;
+    height: auto;
   }
   .bento-image        { grid-column: 1 / -1; grid-row: 1 / 2; min-height: 300px; height: 350px; }
   .bento-description  { grid-column: 1 / -1; grid-row: 2 / 3; }
@@ -455,6 +460,8 @@
 @media (max-width: 600px) {
   .detail-bento {
     grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto auto auto;
+    height: auto;
     gap: 10px;
     padding: 12px;
   }

@@ -79,17 +79,17 @@ let inventarioTimeout = null;
 let stockTimeout = null;
 
 // Helper centralizado: guarda en Supabase y muestra error si falla
-async function guardarEnSupabase(data) {
+async function guardarEnSupabase(data, type = 'product_change') {
     const result = await CatalogStorage.save(data);
     if (!result.ok) {
         alert('⚠️ NO SE GUARDÓ en la base de datos.\n\n' + result.error);
         return false;
     }
-    broadcastUpdate();
+    broadcastUpdate(type);
     return true;
 }
 
-function broadcastUpdate() {
+function broadcastUpdate(type) {
     const sb = window._supabase;
     if (sb) {
         const channel = sb.channel('catalog-broadcast');
@@ -98,9 +98,9 @@ function broadcastUpdate() {
                 channel.send({
                     type: 'broadcast',
                     event: 'update',
-                    payload: { type: 'catalog_change', timestamp: Date.now() }
+                    payload: { type: type, timestamp: Date.now() }
                 }).then(() => {
-                    console.log('[Realtime Admin] Broadcast de actualización enviado.');
+                    console.log('[Realtime Admin] Broadcast de actualización enviado:', type);
                 });
             }
         });
@@ -788,7 +788,7 @@ function renderNotificacionesHistorial() {
             if (confirm('¿Estás seguro de eliminar esta notificación?')) {
                 const backup = [...currentData.notificaciones];
                 currentData.notificaciones = currentData.notificaciones.filter(n => n.id !== id);
-                const saved = await guardarEnSupabase(currentData);
+                const saved = await guardarEnSupabase(currentData, 'notification_change');
                 if (!saved) {
                     currentData.notificaciones = backup;
                     return;
@@ -870,7 +870,7 @@ function setupNotificaciones() {
             rollbackFn = () => { currentData.notificaciones.shift(); };
         }
         
-        const saved = await guardarEnSupabase(currentData);
+        const saved = await guardarEnSupabase(currentData, 'notification_change');
         if (!saved) {
             rollbackFn();
             return;

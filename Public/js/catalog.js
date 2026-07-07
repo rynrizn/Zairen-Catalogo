@@ -11,6 +11,15 @@ let lastSeenNotif = 0;
 let catalogSearchQuery = '';  // current search query
 let renderTimeout = null;     // timeout for debounced nothing loader rendering
 
+function formatNotifDate(timestamp) {
+    if (!timestamp) return '';
+    const date = new Date(timestamp);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = String(date.getFullYear()).slice(-2);
+    return `${day}/${month}/${year}`;
+}
+
 // Global Favorite Helpers
 window.isProductFavorite = function(productId) {
     return favorites.includes(productId);
@@ -145,9 +154,13 @@ function setupNotifications(notifs, isUpdate = false) {
             
             let linkHtml = n.link ? `<a href="${escLink}" target="_blank" style="display:inline-block; margin-top:6px; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600; text-transform:uppercase; color:var(--z-crimson); text-decoration:none;">${escLinkTexto}</a>` : '';
             
+            const dateStr = formatNotifDate(n.fecha);
             item.innerHTML = `
-                <h5 style="font-family:'Hanken Grotesk',sans-serif; font-size:13px; font-weight:700; color:var(--z-text-primary); margin-bottom:4px;">${escTitulo}</h5>
-                <p style="font-size:12px; color:var(--z-text-secondary); line-height:1.4;">${escMensaje}</p>
+                <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px; gap:8px;">
+                    <h5 style="font-family:'Hanken Grotesk',sans-serif; font-size:13px; font-weight:700; color:var(--z-text-primary); margin:0;">${escTitulo}</h5>
+                    <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--z-muted); flex-shrink:0;">${dateStr}</span>
+                </div>
+                <p style="font-size:12px; color:var(--z-text-secondary); line-height:1.4; margin:0;">${escMensaje}</p>
                 ${linkHtml}
             `;
             list.appendChild(item);
@@ -198,15 +211,27 @@ function showToast(title, message, link, linkText) {
         linkEl.href = link;
         linkEl.textContent = linkText || 'Ver Enlace';
         linkEl.style.display = 'inline-block';
+        
+        linkEl.onclick = (e) => {
+            if (link === '#actualizar') {
+                e.preventDefault();
+                window.closeToast();
+                const reloadBtn = document.getElementById('nav-reload-btn');
+                if (reloadBtn) reloadBtn.click();
+            }
+        };
     } else {
         linkEl.style.display = 'none';
+        linkEl.onclick = null;
     }
     
     toast.style.visibility = 'visible';
     toast.style.opacity = '1';
     toast.style.transform = 'translateX(-50%) translateY(0)';
     
-    setTimeout(window.closeToast, 8000);
+    // Clear any existing timeout and reset it
+    if (window.toastTimeout) clearTimeout(window.toastTimeout);
+    window.toastTimeout = setTimeout(window.closeToast, 8000);
 }
 
 window.closeToast = function() {
@@ -216,6 +241,16 @@ window.closeToast = function() {
     toast.style.transform = 'translateX(-50%) translateY(100px)';
     setTimeout(() => { toast.style.visibility = 'hidden'; }, 500);
 }
+
+window.triggerProductUpdateAlert = function() {
+    notifyUpdateAvailable();
+    showToast(
+        "Catálogo Actualizado",
+        "Se han realizado cambios en los productos en tiempo real.",
+        "#actualizar",
+        "Actualizar"
+    );
+};
 
 // ==============================
 // FILTER BAR — Dynamic generation
@@ -865,7 +900,7 @@ function setupRealtimeCatalog() {
                 
                 // Soft update in-place
                 renderCatalog();
-                notifyUpdateAvailable();
+                window.triggerProductUpdateAlert();
             }
         })
         .subscribe();
@@ -890,15 +925,21 @@ function setupRealtimeCatalog() {
             
             const data = await CatalogStorage.load();
             if (data) {
+                const changeType = payload.payload ? payload.payload.type : 'product_change';
+                
                 if (data.productos) {
                     allProductos = data.productos;
                     catalogConfig = data.configuracion || { estados: {} };
                     renderCatalog();
                 }
-                if (data.notificaciones) {
-                    setupNotifications(data.notificaciones, true);
+                
+                if (changeType === 'notification_change') {
+                    if (data.notificaciones) {
+                        setupNotifications(data.notificaciones, true);
+                    }
+                } else {
+                    window.triggerProductUpdateAlert();
                 }
-                notifyUpdateAvailable();
             }
         })
         .subscribe();
