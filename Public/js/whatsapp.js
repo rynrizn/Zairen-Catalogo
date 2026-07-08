@@ -10,17 +10,8 @@ function generateWhatsAppLink(producto, tallaSeleccionada, configuracion) {
     const phone = configuracion.whatsappNumber.replace(/\D/g, '');
 
     // Construir URL del producto
-    let productUrl;
-    let baseUrl = configuracion.baseUrl || '';
-    if (baseUrl.endsWith('/')) baseUrl = baseUrl.slice(0, -1);
-
-    if (!baseUrl || baseUrl.includes('tu-dominio')) {
-        // Usar la URL actual del navegador
-        const currentUrl = new URL(window.location.href);
-        productUrl = `${currentUrl.origin}${currentUrl.pathname}#product-${producto.id}`;
-    } else {
-        productUrl = `${baseUrl}/#product-${producto.id}`;
-    }
+    const currentUrl = new URL(window.location.href);
+    const productUrl = `${currentUrl.origin}${currentUrl.pathname}#product-${producto.id}`;
 
     // Buscar texto del estado desde configuración
     const estadoInfo = configuracion.estados[producto.estado] || {};
@@ -38,7 +29,7 @@ function generateWhatsAppLink(producto, tallaSeleccionada, configuracion) {
         `📏 Talla: ${tallaSeleccionada || 'No seleccionada'}`,
         `📂 Sección: ${seccionNombre}`,
         `📌 Estado: ${estadoTexto}`,
-        `💰 Precio: $${producto.precio} ${producto.moneda || 'CLP'}`,
+        `💰 Precio: ${producto.moneda || 'Bs.'} ${producto.precio}`,
         `🔗 Ver producto: ${productUrl}`,
         ``,
         `¿Está disponible?`

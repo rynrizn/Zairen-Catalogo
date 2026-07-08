@@ -155,7 +155,7 @@ function openProductDetail(producto, configuracion) {
             <div class="bento-cell bento-actions">
                 <div class="bento-price-block">
                     <span class="bento-cell-label">PRECIO</span>
-                    <span class="bento-price-value">$${escPrecio}</span>
+                    <span class="bento-price-value">Bs. ${escPrecio}</span>
                 </div>
                 <div class="bento-actions-btns">
                     <button id="btn-wsp-detail" class="bento-btn-wsp" ${isAgotado ? 'disabled' : ''} style="display:inline-flex; align-items:center; justify-content:center; gap:8px;">

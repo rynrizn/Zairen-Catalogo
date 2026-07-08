@@ -621,7 +621,7 @@ function createProductCard(producto, animIndex) {
         <div class="card-info-overlay">
             <span class="card-name">${escNombre}</span>
             <div class="card-meta">
-                <span class="card-price">$${escPrecio}</span>
+                <span class="card-price">Bs. ${escPrecio}</span>
                 <span class="card-type">${escTipo}</span>
             </div>
             <div class="card-actions">

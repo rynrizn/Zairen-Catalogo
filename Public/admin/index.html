@@ -29,6 +29,10 @@
     <script src="/js/storage.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="/admin/js/admin.js" defer></script>
+    
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body class="admin-page">
 
@@ -51,8 +55,9 @@
         
         <!-- NAVBAR -->
         <nav class="admin-navbar">
-            <a href="#" class="admin-brand">
-                <span class="brand-text">ZAIREN | ザイレン</span>
+            <a href="#" class="admin-brand" style="display:flex; align-items:center; gap:8px;">
+                <img id="admin-logo" src="/assets/brand/logo-light.svg" alt="ZAIREN Logo" style="height: 24px; width: auto; object-fit: contain;">
+                <span style="font-family:'DotGothic16',monospace; font-size:16px; color:var(--z-text-primary); margin-left: 4px;">ザイレン</span>
             </a>
             
             <span class="admin-nav-divider"></span>
@@ -68,6 +73,11 @@
                 <a class="admin-nav-link" data-view="view-notificaciones">Notificaciones</a>
                 <a class="admin-nav-link" data-view="view-config">Personalización</a>
                 <a class="admin-nav-link" data-view="view-metricas">Métricas</a>
+                <!-- Mobile Only Logout Link -->
+                <a class="admin-nav-link show-only-mobile" id="mobile-logout-btn" style="color: var(--z-crimson) !important; border-top: 1px solid var(--z-border); padding-top: 12px; margin-top: 4px; display: none;">
+                    <span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; margin-right: 6px;">logout</span>
+                    Cerrar Sesión
+                </a>
             </div>
             
             <span class="admin-nav-divider hidden-mobile" style="margin-left:auto;"></span>

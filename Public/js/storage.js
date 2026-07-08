@@ -152,7 +152,7 @@ const CatalogStorage = {
 
         if (data.productos.length > 0) {
           const mapped = data.productos.map(p => ({
-            id: p.id, nombre: p.nombre, precio: p.precio, moneda: p.moneda || 'CLP',
+            id: p.id, nombre: p.nombre, precio: p.precio, moneda: p.moneda || 'Bs.',
             seccion: p.seccion, tipo: p.tipo || 'ropa', estado: p.estado || 'disponible',
             tallas: p.tallas || [], imagen: p.imagen, descripcion: p.descripcion,
             detalles: p.detalles || {}, tags: p.tags || [], destacado: p.destacado || false

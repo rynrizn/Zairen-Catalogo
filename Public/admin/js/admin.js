@@ -58,11 +58,16 @@ pwdInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') loginBtn.click();
 });
 
-logoutBtn.addEventListener('click', async () => {
+const handleLogout = async () => {
     const sb = window._supabase;
     if (sb) await sb.auth.signOut();
     window.location.reload();
-});
+};
+
+if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
+
+const mobileLogoutBtn = document.getElementById('mobile-logout-btn');
+if (mobileLogoutBtn) mobileLogoutBtn.addEventListener('click', handleLogout);
 
 // ============================================================
 // [BLOQUE ESTADO LOCAL]
@@ -387,7 +392,7 @@ function drawInventarioTable() {
         const tr = document.createElement('tr');
         const escNombre = escapeHTML(p.nombre);
         const escPrecio = escapeHTML(p.precio);
-        const escMoneda = escapeHTML(p.moneda || 'CLP');
+        const escMoneda = escapeHTML(p.moneda || 'Bs.');
         const escSeccion = escapeHTML(p.seccion);
         const escEstado = escapeHTML(p.estado);
         const escId = escapeHTML(p.id);
@@ -397,7 +402,7 @@ function drawInventarioTable() {
                 <img src="${p.imagen}" alt="${escNombre}" class="product-thumb">
             </td>
             <td style="font-weight: 600;">${escNombre}</td>
-            <td style="font-family: 'DotGothic16', monospace;">$${escPrecio} ${escMoneda}</td>
+            <td style="font-family: 'DotGothic16', monospace;">${escMoneda} ${escPrecio}</td>
             <td style="text-transform: capitalize; color: var(--z-text-secondary);">${escSeccion}</td>
             <td>
                 <span class="status-badge" style="background-color: ${statusColors[p.estado] || '#666'}">${escEstado}</span>
@@ -558,7 +563,7 @@ function setupFormAgregar() {
         const dataProd = {
             nombre: document.getElementById('add-nombre').value,
             precio: document.getElementById('add-precio').value,
-            moneda: "CLP",
+            moneda: "Bs.",
             seccion: seccion,
             tipo: tipo,
             estado: document.getElementById('add-estado').value,

@@ -24,6 +24,19 @@ function applyTheme(theme) {
   if (icon) {
     icon.textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
   }
+  // Update theme-responsive logo images
+  const webLogo = document.getElementById('web-logo');
+  if (webLogo) {
+    webLogo.src = theme === 'dark' ? '/assets/brand/logo-dark.svg' : '/assets/brand/logo-light.svg';
+  }
+  const footerLogo = document.getElementById('footer-logo');
+  if (footerLogo) {
+    footerLogo.src = theme === 'dark' ? '/assets/brand/logo-dark.svg' : '/assets/brand/logo-light.svg';
+  }
+  const adminLogo = document.getElementById('admin-logo');
+  if (adminLogo) {
+    adminLogo.src = theme === 'dark' ? '/assets/brand/logo-dark.svg' : '/assets/brand/logo-light.svg';
+  }
 }
 
 function toggleTheme() {

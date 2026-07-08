@@ -813,7 +813,7 @@
         max-width: calc(100% - 32px);
     ">
         <a href="#" style="display:flex; align-items:center; gap:12px; text-decoration:none; white-space:nowrap;">
-            <span class="brand-text" style="font-family:'DotGothic16',monospace; font-size:18px; font-weight:700; letter-spacing:0.15em; color:var(--z-text-primary); text-transform:uppercase;">ZAIREN</span>
+            <img id="web-logo" src="/assets/brand/logo-light.svg" alt="ZAIREN Logo" style="height: 24px; width: auto; object-fit: contain;">
             <span style="width:1px; height:16px; background:var(--z-border); display:inline-block;"></span>
             <span class="brand-jp" style="font-family:'DotGothic16',monospace; font-size:18px; color:var(--z-text-primary);">ザイレン</span>
             <span class="preview-badge" style="display:none; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--z-crimson); padding-left:8px; letter-spacing:0.1em;">PREVIEW</span>
@@ -935,6 +935,92 @@
 
         <!-- Catalog Container -->
         <div id="catalog-container" style="min-height:50vh;"></div>
+
+        <!-- ============================== -->
+        <!-- Footer                         -->
+        <!-- ============================== -->
+        <footer style="
+            margin-top: 80px;
+            padding-top: 48px;
+            padding-bottom: 32px;
+            border-top: 1px solid var(--z-border);
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        ">
+            <div style="
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 32px;
+            ">
+                <!-- Left Info Panel -->
+                <div style="max-width: 400px; display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <img id="footer-logo" src="/assets/brand/logo-light.svg" alt="ZAIREN Logo" style="height: 32px; width: auto; object-fit: contain;">
+                        <span style="width:1px; height:16px; background:var(--z-border); display:inline-block;"></span>
+                        <span style="font-family:'DotGothic16',monospace; font-size:18px; color:var(--z-text-primary);">ザイレン</span>
+                    </div>
+                    <p style="font-size: 14px; color: var(--z-text-secondary); line-height: 1.6; margin: 0;">
+                        <strong>Filosofía:</strong> Evolución constante con identidad propia.
+                    </p>
+                    <p style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--z-crimson); font-weight: 500; margin: 0; letter-spacing: 0.05em;">
+                        Evolving Without Losing Identity.
+                    </p>
+                </div>
+
+                <!-- Right Links Panel -->
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <h4 style="font-family:'Hanken Grotesk',sans-serif; font-weight: 700; font-size: 15px; margin: 0; color: var(--z-text-primary); text-transform: uppercase; letter-spacing: 0.1em;">Redes Sociales</h4>
+                    <div style="display: flex; gap: 16px; align-items: center;">
+                        <a href="https://www.instagram.com/zairen.lab" target="_blank" style="
+                            display: flex; align-items: center; gap: 6px;
+                            font-family: 'JetBrains Mono', monospace; font-size: 13px;
+                            color: var(--z-text-secondary); text-decoration: none;
+                            transition: color 0.3s ease;
+                        " onmouseover="this.style.color='var(--z-crimson)'" onmouseout="this.style.color='var(--z-text-secondary)'">
+                            <svg viewBox="0 0 24 24" fill="currentColor" style="width: 16px; height: 16px;">
+                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/>
+                            </svg>
+                            Instagram
+                        </a>
+                        <a href="https://www.tiktok.com/@zairen.lab" target="_blank" style="
+                            display: flex; align-items: center; gap: 6px;
+                            font-family: 'JetBrains Mono', monospace; font-size: 13px;
+                            color: var(--z-text-secondary); text-decoration: none;
+                            transition: color 0.3s ease;
+                        " onmouseover="this.style.color='var(--z-crimson)'" onmouseout="this.style.color='var(--z-text-secondary)'">
+                            <svg viewBox="0 0 24 24" fill="currentColor" style="width: 16px; height: 16px;">
+                                <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.02 1.59 4.23.95 1.2 2.27 2.05 3.73 2.42v3.91c-1.18-.08-2.35-.49-3.37-1.18-.94-.64-1.72-1.52-2.27-2.54v9.52c.01 4.14-3.35 7.51-7.5 7.51s-7.51-3.36-7.51-7.5 3.35-7.51 7.5-7.51c.31.01.62.03.93.07v3.93c-.31-.04-.62-.06-.93-.06-2.02.01-3.64 1.64-3.64 3.66.01 2.02 1.64 3.64 3.66 3.64s3.64-1.62 3.64-3.64v-16.5c0-.02-.01-.03-.01-.05z"/>
+                            </svg>
+                            TikTok
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Copyright / Centered text -->
+            <div style="
+                margin-top: 16px;
+                padding-top: 24px;
+                border-top: 1px solid var(--z-border);
+                text-align: center;
+            ">
+                <span style="
+                    font-family: 'DotGothic16', monospace;
+                    font-size: 16px;
+                    font-weight: 700;
+                    letter-spacing: 0.15em;
+                    color: var(--z-text-primary);
+                ">
+                    ZAIREN | ザイレン
+                </span>
+                <p style="font-size: 12px; color: var(--z-text-secondary); margin-top: 8px; margin-bottom: 0;">
+                    &copy; 2026 ZAIREN Lab. Todos los derechos reservados.
+                </p>
+            </div>
+        </footer>
 
     </main>
 
