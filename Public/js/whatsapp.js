@@ -26,10 +26,11 @@ function generateWhatsAppLink(producto, tallaSeleccionada, configuracion) {
         `Hola, me interesa adquirir:`,
         ``,
         `🏷️ *${producto.nombre}*`,
+        `👕 Tipo: ${producto.tipo || 'N/A'}`,
         `📏 Talla: ${tallaSeleccionada || 'No seleccionada'}`,
         `📂 Sección: ${seccionNombre}`,
         `📌 Estado: ${estadoTexto}`,
-        `💰 Precio: ${producto.moneda || 'Bs.'} ${producto.precio}`,
+        `💰 Precio: Bs. ${producto.precio}`,
         `🔗 Ver producto: ${productUrl}`,
         ``,
         `¿Está disponible?`

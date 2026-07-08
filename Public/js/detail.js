@@ -214,14 +214,8 @@ function selectTalla(talla, btnEl) {
 // SHARE UTILITIES
 // ==============================
 function buildProductUrl(productId) {
-    const baseUrl = currentConfig && currentConfig.baseUrl ? currentConfig.baseUrl : '';
-    if (!baseUrl || baseUrl.includes('tu-dominio')) {
-        const currentUrl = new URL(window.location.href);
-        return `${currentUrl.origin}${currentUrl.pathname}#product-${productId}`;
-    }
-    let base = baseUrl;
-    if (base.endsWith('/')) base = base.slice(0, -1);
-    return `${base}/#product-${productId}`;
+    const currentUrl = new URL(window.location.href);
+    return `${currentUrl.origin}${currentUrl.pathname}#product-${productId}`;
 }
 
 function copyProductLink(productId) {

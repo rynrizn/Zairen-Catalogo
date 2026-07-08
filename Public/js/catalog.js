@@ -723,14 +723,8 @@ function handleHash() {
 // SECTION SHARE UTILITIES
 // ==============================
 function buildSectionUrl(sectionKey) {
-    const baseUrl = catalogConfig && catalogConfig.baseUrl ? catalogConfig.baseUrl : '';
-    if (!baseUrl || baseUrl.includes('tu-dominio')) {
-        const currentUrl = new URL(window.location.href);
-        return `${currentUrl.origin}${currentUrl.pathname}#section-${sectionKey}`;
-    }
-    let base = baseUrl;
-    if (base.endsWith('/')) base = base.slice(0, -1);
-    return `${base}/#section-${sectionKey}`;
+    const currentUrl = new URL(window.location.href);
+    return `${currentUrl.origin}${currentUrl.pathname}#section-${sectionKey}`;
 }
 
 function shareSectionQr(sectionKey, sectionLabel) {

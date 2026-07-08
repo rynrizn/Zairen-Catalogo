@@ -392,7 +392,7 @@ function drawInventarioTable() {
         const tr = document.createElement('tr');
         const escNombre = escapeHTML(p.nombre);
         const escPrecio = escapeHTML(p.precio);
-        const escMoneda = escapeHTML(p.moneda || 'Bs.');
+        const escMoneda = 'Bs.';
         const escSeccion = escapeHTML(p.seccion);
         const escEstado = escapeHTML(p.estado);
         const escId = escapeHTML(p.id);

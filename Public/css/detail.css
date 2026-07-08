@@ -264,7 +264,7 @@
 }
 .bento-talla-active {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--z-crimson);
 }
