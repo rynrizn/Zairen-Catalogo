@@ -652,15 +652,15 @@
             .nav-secondary-group {
                 display: none;
                 position: absolute;
-                top: 56px;
-                right: 0;
-                flex-direction: column;
+                top: calc(100% + 16px);
+                right: -8px;
+                flex-direction: row;
                 background: var(--z-nav-bg);
                 backdrop-filter: blur(calc(var(--z-glass-blur-val, 20px) * 1.2));
                 -webkit-backdrop-filter: blur(calc(var(--z-glass-blur-val, 20px) * 1.2));
                 border: 1px solid var(--z-nav-border);
-                border-radius: var(--z-radius);
-                padding: 12px;
+                border-radius: 9999px;
+                padding: 8px 16px;
                 box-shadow: var(--z-shadow-float);
                 z-index: 200;
                 gap: 12px;
@@ -670,6 +670,7 @@
             }
             .nav-more-btn {
                 display: flex !important;
+                margin-right: 8px;
             }
         }
 
