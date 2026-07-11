@@ -28,7 +28,7 @@ function buildProductMessage(producto, tallaSeleccionada, configuracion, channel
         saludo,
         ``,
         `🏷️ *${producto.nombre}*`,
-        `👕 Tipo: ${producto.tipo || 'N/A'}`,
+        `✅ Tipo: ${producto.tipo || 'N/A'}`,
         `📏 Talla: ${tallaSeleccionada || 'No seleccionada'}`,
         `📂 Sección: ${seccionNombre}`,
         `📌 Estado: ${estadoTexto}`,
