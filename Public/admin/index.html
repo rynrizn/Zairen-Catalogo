@@ -70,6 +70,7 @@
                 <a class="admin-nav-link active" data-view="view-inventario">Ver Inventario</a>
                 <a class="admin-nav-link" data-view="view-agregar" id="nav-agregar-btn">Agregar Producto</a>
                 <a class="admin-nav-link" data-view="view-stock">Control de Stock</a>
+                <a class="admin-nav-link" data-view="view-canales">Canales de Venta</a>
                 <a class="admin-nav-link" data-view="view-notificaciones">Notificaciones</a>
                 <a class="admin-nav-link" data-view="view-config">Personalización</a>
                 <a class="admin-nav-link" data-view="view-metricas">Métricas</a>
@@ -192,8 +193,16 @@
                                     <input type="text" id="add-tipo-nuevo" class="admin-input" placeholder="Nombre del nuevo tipo" style="display: none; margin-top: 8px;">
                                 </div>
                                 <div class="form-group">
-                                    <label>URL de Imagen (relativa o absoluta)</label>
-                                    <input type="text" id="add-imagen" class="admin-input" placeholder="./assets/tushirt.png" required>
+                                    <label>Imágenes del Producto (Máximo 5 - La primera será la Principal)</label>
+                                    <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                                        <input type="text" id="add-imagen-url" class="admin-input" placeholder="https://ejemplo.com/imagen.jpg" style="margin-bottom: 0; flex: 1;">
+                                        <button type="button" id="btn-add-imagen" class="action-button" style="height: 46px; padding: 0 16px; margin: 0; display: flex; align-items: center; justify-content: center; background: var(--z-surface-alt); border: 1px solid var(--z-border); color: var(--z-text-primary);">
+                                            <span class="material-symbols-outlined" style="font-size: 20px;">add</span>
+                                        </button>
+                                    </div>
+                                    <div id="imagenes-container" style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; min-height: 70px; padding: 8px; border: 1px dashed var(--z-border); border-radius: 8px; background: rgba(0,0,0,0.05); align-items: center;">
+                                        <!-- Thumbnails se agregarán dinámicamente aquí -->
+                                    </div>
                                 </div>
                             </div>
                             
@@ -216,6 +225,16 @@
                                 <div class="form-group">
                                     <label>Descripción Corta</label>
                                     <textarea id="add-desc" class="admin-input admin-textarea" required></textarea>
+                                </div>
+                                <div class="form-group" style="display: flex; align-items: center; justify-content: space-between; margin-top: 16px; background: var(--z-surface-alt); padding: 12px; border-radius: 8px; border: 1px solid var(--z-border);">
+                                    <div>
+                                        <span style="font-size: 14px; font-weight: 600; display: block; color: var(--z-text-primary);">Producto Visible</span>
+                                        <span style="font-size: 11px; color: var(--z-text-secondary);">¿Mostrar este producto en el catálogo?</span>
+                                    </div>
+                                    <label class="toggle-label" style="display: inline-flex; align-items: center; cursor: pointer;">
+                                        <input type="checkbox" id="add-visible" class="toggle-input" checked>
+                                        <span class="toggle-switch"></span>
+                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -263,6 +282,97 @@
                 
                 <div class="stock-grid" id="stock-container">
                     <!-- Inyectado via JS -->
+                </div>
+            </section>
+
+            <!-- VISTA: CANALES DE VENTA -->
+            <section id="view-canales" class="admin-view">
+                <div class="view-header">
+                    <h2>Canales de Venta</h2>
+                    <p>Configura las plataformas por las cuales los clientes realizarán sus pedidos.</p>
+                </div>
+                
+                <div class="admin-form-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+                    <!-- CANAL WHATSAPP -->
+                    <div class="bento-cell" style="padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--z-border); padding-bottom: 12px; margin-bottom: 8px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span class="material-symbols-outlined" style="color: #25D366; font-size: 24px;">chat</span>
+                                <span style="font-family: var(--z-font-display); font-size: 18px; color: var(--z-text-primary);">WhatsApp</span>
+                            </div>
+                            <label class="toggle-label" style="display: inline-flex; align-items: center; cursor: pointer;">
+                                <input type="checkbox" id="canal-wa-enabled" class="toggle-input">
+                                <span class="toggle-switch"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label style="font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; color: var(--z-text-secondary); display: block; margin-bottom: 6px;">Número de Teléfono (con código de país, ej: +59174522654)</label>
+                            <input type="text" id="canal-wa-phone" class="admin-input" placeholder="+59174522654">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label style="font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; color: var(--z-text-secondary); display: block; margin-bottom: 6px;">Saludo del Mensaje (Estático)</label>
+                            <input type="text" id="canal-wa-saludo" class="admin-input" placeholder="Hola, me interesa adquirir:">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label style="font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; color: var(--z-text-secondary); display: block; margin-bottom: 6px;">Despedida del Mensaje (Estático)</label>
+                            <input type="text" id="canal-wa-despedida" class="admin-input" placeholder="¿Está disponible?">
+                        </div>
+                        
+                        <div style="background: rgba(255,255,255,0.02); border: 1px dashed var(--z-border); border-radius: 8px; padding: 12px; font-size: 11px; color: var(--z-text-secondary); font-family: 'JetBrains Mono', monospace; line-height: 1.4;">
+                            <strong style="color: var(--z-text-primary);">Estructura del Mensaje de WhatsApp:</strong><br>
+                            [Saludo]<br>
+                            🏷️ *[Nombre del Producto]*<br>
+                            👕 Tipo: [Tipo] | Talla: [Talla]<br>
+                            📂 Sección: [Sección]<br>
+                            💰 Precio: Bs. [Precio]<br>
+                            🔗 Link: [Url]<br>
+                            [Despedida]
+                        </div>
+                    </div>
+                    
+                    <!-- CANAL INSTAGRAM -->
+                    <div class="bento-cell" style="padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--z-border); padding-bottom: 12px; margin-bottom: 8px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span class="material-symbols-outlined" style="color: #E1306C; font-size: 24px;">photo_camera</span>
+                                <span style="font-family: var(--z-font-display); font-size: 18px; color: var(--z-text-primary);">Instagram</span>
+                            </div>
+                            <label class="toggle-label" style="display: inline-flex; align-items: center; cursor: pointer;">
+                                <input type="checkbox" id="canal-ig-enabled" class="toggle-input">
+                                <span class="toggle-switch"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label style="font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; color: var(--z-text-secondary); display: block; margin-bottom: 6px;">Usuario de Instagram (ej: zairen.lab)</label>
+                            <input type="text" id="canal-ig-username" class="admin-input" placeholder="zairen.lab">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label style="font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; color: var(--z-text-secondary); display: block; margin-bottom: 6px;">Saludo del Mensaje (Estático)</label>
+                            <input type="text" id="canal-ig-saludo" class="admin-input" placeholder="Hola, me interesa adquirir:">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label style="font-family: 'JetBrains Mono', monospace; font-size: 11px; text-transform: uppercase; color: var(--z-text-secondary); display: block; margin-bottom: 6px;">Despedida del Mensaje (Estático)</label>
+                            <input type="text" id="canal-ig-despedida" class="admin-input" placeholder="¿Está disponible?">
+                        </div>
+                        
+                        <div style="background: rgba(255,255,255,0.02); border: 1px dashed var(--z-border); border-radius: 8px; padding: 12px; font-size: 11px; color: var(--z-text-secondary); font-family: 'JetBrains Mono', monospace; line-height: 1.4;">
+                            <strong style="color: var(--z-text-primary);">Nota sobre Instagram:</strong><br>
+                            Al hacer clic en comprar por IG, se copiará el mensaje al portapapeles y se redireccionará al perfil del comercio para enviar el Mensaje Directo.
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 24px; display: flex; justify-content: flex-end;">
+                    <button type="button" id="btn-guardar-canales" class="action-button">
+                        <span class="material-symbols-outlined" style="margin-right: 8px;">save</span>
+                        <span>Guardar Canales</span>
+                    </button>
                 </div>
             </section>
             

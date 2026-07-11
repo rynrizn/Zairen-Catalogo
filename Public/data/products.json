@@ -24,6 +24,21 @@
         "texto": "DISPONIBLE",
         "color": "#3B82F6"
       }
+    },
+    "canalesContacto": {
+      "whatsapp": {
+        "enabled": true,
+        "phone": "+59174522654",
+        "saludo": "Hola, me interesa adquirir:",
+        "despedida": "¿Está disponible?"
+      },
+      "instagram": {
+        "enabled": false,
+        "username": "",
+        "saludo": "Hola, me interesa adquirir:",
+        "despedida": "¿Está disponible?"
+      },
+      "last_active": "whatsapp"
     }
   },
   "productos": [
@@ -37,6 +52,8 @@
       "estado": "nuevo",
       "tallas": ["S", "M", "L", "XL"],
       "imagen": "./assets/core_tee.png",
+      "imagenes": ["./assets/core_tee.png"],
+      "visible": true,
       "descripcion": "Una polera diseñada con precisión arquitectónica. Fit oversize con un cuello estructurado, fabricada con nuestro algodón Supima pesado.",
       "detalles": {
         "material": "100% Algodón Supima Orgánico, 280gsm",
@@ -56,6 +73,8 @@
       "estado": "disponible",
       "tallas": ["S", "M", "L", "XL"],
       "imagen": "./assets/heavyweight_tee.png",
+      "imagenes": ["./assets/heavyweight_tee.png"],
+      "visible": true,
       "descripcion": "Concebida en Tokio. Tejido de alta densidad que mantiene la estructura del cuerpo, creando una silueta rígida pero transpirable.",
       "detalles": {
         "material": "100% Algodón Peinado, 320gsm",
@@ -75,6 +94,8 @@
       "estado": "oferta",
       "tallas": ["S", "M", "L"],
       "imagen": "./assets/drape_tee.png",
+      "imagenes": ["./assets/drape_tee.png"],
+      "visible": true,
       "descripcion": "Una aproximación deconstructiva a la prenda básica por excelencia. Caída suave, dobladillos asimétricos y un tratamiento sutil del tejido.",
       "detalles": {
         "material": "Mezcla Tencel / Algodón, 160gsm",
@@ -94,6 +115,8 @@
       "estado": "nuevo",
       "tallas": ["M", "L", "XL", "XXL"],
       "imagen": "./assets/core_tee.png",
+      "imagenes": ["./assets/core_tee.png"],
+      "visible": true,
       "descripcion": "Hoodie oversize con bordado Akatsuki en la espalda. Tejido heavyweight de 380gsm con capucha doble capa y bolsillo canguro.",
       "detalles": {
         "material": "100% Algodón Fleece, 380gsm",
@@ -113,6 +136,8 @@
       "estado": "preventa",
       "tallas": ["38", "39", "40", "41", "42", "43"],
       "imagen": "./assets/heavyweight_tee.png",
+      "imagenes": ["./assets/heavyweight_tee.png"],
+      "visible": true,
       "descripcion": "Zapatillas inspiradas en la Unidad 01 de Evangelion. Suela chunky con detalles en verde y púrpura neón. Edición limitada.",
       "detalles": {
         "material": "Upper sintético premium + Mesh transpirable",
@@ -132,6 +157,8 @@
       "estado": "disponible",
       "tallas": ["S", "M", "L", "XL"],
       "imagen": "./assets/drape_tee.png",
+      "imagenes": ["./assets/drape_tee.png"],
+      "visible": true,
       "descripcion": "Polera con arte minimalista de Blade Runner 2049. Estampado serigrafiado de alta densidad sobre algodón premium.",
       "detalles": {
         "material": "100% Algodón Ring-Spun, 240gsm",
@@ -151,6 +178,8 @@
       "estado": "agotado",
       "tallas": ["Única"],
       "imagen": "./assets/core_tee.png",
+      "imagenes": ["./assets/core_tee.png"],
+      "visible": true,
       "descripcion": "Figura coleccionable de Godzilla en resina de alta calidad. 25cm de altura con base temática incluida. Pintado a mano.",
       "detalles": {
         "material": "Resina de poliuretano",

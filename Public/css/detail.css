@@ -506,3 +506,58 @@
   .bento-title { font-size: 22px; }
   .bento-price-value { font-size: 26px; }
 }
+
+/* ============================================================
+   [MULTIPLE IMAGES DETAIL GALLERY ADDITIONS]
+   ============================================================ */
+.detail-carrusel-slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: clip-path 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+}
+
+.detail-carrusel-arrow {
+  opacity: 0.6;
+  transition: opacity 0.3s var(--z-ease), transform 0.3s var(--z-ease);
+}
+.detail-carrusel-arrow:hover {
+  opacity: 1;
+  transform: translateY(-50%) scale(1.08);
+}
+
+.detail-thumbnail {
+  border: 2px solid transparent;
+  transition: border-color 0.3s var(--z-ease), opacity 0.3s var(--z-ease), transform 0.3s var(--z-ease);
+}
+.detail-thumbnail:hover {
+  opacity: 1 !important;
+  transform: scale(1.05);
+}
+.detail-thumbnail.active {
+  border-color: var(--z-crimson) !important;
+  opacity: 1 !important;
+}
+
+/* Bento buttons side-by-side spacing */
+.bento-actions-btns {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.bento-actions-btns button {
+  flex: 1;
+}
+
+/* detail fullscreen click handling */
+.bento-fullscreen-btn {
+  transition: opacity 0.3s var(--z-ease), transform 0.3s var(--z-ease);
+}
+.bento-fullscreen-btn:hover {
+  transform: scale(1.08);
+}

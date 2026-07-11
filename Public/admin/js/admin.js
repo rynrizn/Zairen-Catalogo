@@ -144,6 +144,7 @@ async function initAdmin() {
     renderStock();
     renderColorPicker();
     setupFormAgregar();
+    setupCanalesConfig();
     setupNotificaciones();
     setupBlurConfig();
     setupConfigSectionOrder();
@@ -287,6 +288,9 @@ function showView(viewId) {
     if (viewId === 'view-metricas') {
         renderMetricas();
     }
+    if (viewId === 'view-canales') {
+        renderCanalesView();
+    }
 }
 
 navLinks.forEach(link => {
@@ -397,6 +401,7 @@ function drawInventarioTable() {
         const escEstado = escapeHTML(p.estado);
         const escId = escapeHTML(p.id);
 
+        const visibleBadge = p.visible === false ? `<span class="status-badge" style="background-color: #EF4444; margin-left: 4px;">OCULTO</span>` : '';
         tr.innerHTML = `
             <td>
                 <img src="${p.imagen}" alt="${escNombre}" class="product-thumb">
@@ -406,6 +411,7 @@ function drawInventarioTable() {
             <td style="text-transform: capitalize; color: var(--z-text-secondary);">${escSeccion}</td>
             <td>
                 <span class="status-badge" style="background-color: ${statusColors[p.estado] || '#666'}">${escEstado}</span>
+                ${visibleBadge}
             </td>
             <td>
                 <div class="table-actions" style="justify-content: flex-end;">
@@ -472,7 +478,9 @@ function cargarParaEditar(prod) {
     }
     selTipo.value = prod.tipo || 'ropa';
     
-    document.getElementById('add-imagen').value = prod.imagen;
+    productImages = prod.imagenes ? [...prod.imagenes] : (prod.imagen ? [prod.imagen] : []);
+    renderFormImages();
+    document.getElementById('add-visible').checked = prod.visible !== false;
     document.getElementById('add-estado').value = prod.estado;
     document.getElementById('add-tallas').value = prod.tallas.join(', ');
     document.getElementById('add-desc').value = prod.descripcion;
@@ -523,6 +531,8 @@ function setupFormAgregar() {
     document.getElementById('btn-cancelar-edicion').addEventListener('click', () => {
         editProductId = null;
         document.getElementById('form-agregar').reset();
+        productImages = [];
+        renderFormImages();
         document.getElementById('btn-cancelar-edicion').style.display = 'none';
         document.querySelector('#view-agregar h2').textContent = 'Agregar Producto';
         document.querySelector('#view-agregar p').textContent = 'Crea un nuevo artículo en la base de datos.';
@@ -531,6 +541,29 @@ function setupFormAgregar() {
         inputNuevoTipo.style.display = 'none';
         inputNuevoTipo.required = false;
     });
+
+    const inputUrl = document.getElementById('add-imagen-url');
+    const btnAddImg = document.getElementById('btn-add-imagen');
+    if (btnAddImg && inputUrl) {
+        const handleAddImage = () => {
+            const url = inputUrl.value.trim();
+            if (!url) return;
+            if (productImages.length >= 5) {
+                alert("⚠️ Límite alcanzado: Solo se permiten un máximo de 5 imágenes por producto.");
+                return;
+            }
+            productImages.push(url);
+            inputUrl.value = '';
+            renderFormImages();
+        };
+        btnAddImg.addEventListener('click', handleAddImage);
+        inputUrl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleAddImage();
+            }
+        });
+    }
 
     document.getElementById('nav-agregar-btn').addEventListener('click', () => {
         if (editProductId) document.getElementById('btn-cancelar-edicion').click();
@@ -568,7 +601,9 @@ function setupFormAgregar() {
             tipo: tipo,
             estado: document.getElementById('add-estado').value,
             tallas: tallasArr,
-            imagen: document.getElementById('add-imagen').value,
+            imagen: productImages.length > 0 ? productImages[0] : "",
+            imagenes: productImages,
+            visible: document.getElementById('add-visible').checked,
             descripcion: document.getElementById('add-desc').value,
             detalles: editProductId 
                 ? (currentData.productos.find(p => p.id === editProductId) || {}).detalles || { material: "No especificado", fit: "Standard", cuidado: "Ver etiqueta" }
@@ -607,6 +642,8 @@ function setupFormAgregar() {
         } else {
             alert("✅ Producto agregado exitosamente!");
             form.reset();
+            productImages = [];
+            renderFormImages();
         }
 
         updateTipoFilterDropdown();
@@ -698,18 +735,26 @@ function drawStockGrid() {
         const escId = escapeHTML(p.id);
         const escEstado = escapeHTML(p.estado);
 
+        const isVisible = p.visible !== false;
         card.innerHTML = `
             <img src="${p.imagen}" alt="${escNombre}" class="product-thumb">
             <div class="stock-info">
                 <div class="stock-name">${escNombre}</div>
                 <div style="font-size: 12px; color: var(--z-text-secondary); margin-bottom: 8px;">ID: ${escId}</div>
-                <select class="admin-input admin-select stock-select" data-id="${escId}" style="padding: 8px 12px; margin-bottom: 0;">
+                <select class="admin-input admin-select stock-select" data-id="${escId}" style="padding: 8px 12px; margin-bottom: 8px;">
                     <option value="nuevo" ${p.estado === 'nuevo' ? 'selected' : ''}>NUEVO</option>
                     <option value="disponible" ${p.estado === 'disponible' ? 'selected' : ''}>DISPONIBLE</option>
                     <option value="preventa" ${p.estado === 'preventa' ? 'selected' : ''}>PREVENTA</option>
                     <option value="oferta" ${p.estado === 'oferta' ? 'selected' : ''}>OFERTA</option>
                     <option value="agotado" ${p.estado === 'agotado' ? 'selected' : ''}>AGOTADO</option>
                 </select>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 8px; border-top: 1px solid var(--z-border); padding-top: 8px;">
+                    <span style="font-size: 12px; font-weight: 600; color: var(--z-text-secondary);">Visible</span>
+                    <label class="toggle-label" style="display: inline-flex; align-items: center; cursor: pointer;">
+                        <input type="checkbox" class="toggle-input stock-visible-toggle" data-id="${escId}" ${isVisible ? 'checked' : ''}>
+                        <span class="toggle-switch"></span>
+                    </label>
+                </div>
             </div>
         `;
         container.appendChild(card);
@@ -727,6 +772,25 @@ function drawStockGrid() {
                 if (!saved) {
                     p.estado = oldEstado;
                     e.target.value = oldEstado;
+                    return;
+                }
+                renderInventario(true);
+            }
+        });
+    });
+
+    document.querySelectorAll('.stock-visible-toggle').forEach(chk => {
+        chk.addEventListener('change', async (e) => {
+            const id = e.target.dataset.id;
+            const isChecked = e.target.checked;
+            const p = currentData.productos.find(x => x.id === id);
+            if(p) {
+                const oldVisible = p.visible !== false;
+                p.visible = isChecked;
+                const saved = await guardarEnSupabase(currentData);
+                if (!saved) {
+                    p.visible = oldVisible;
+                    e.target.checked = oldVisible;
                     return;
                 }
                 renderInventario(true);
@@ -1324,6 +1388,9 @@ function triggerEntranceLoader() {
 // ============================================================
 // VERIFICACIÓN DE SESIÓN AL CARGAR
 // ============================================================
+// ============================================================
+// VERIFICACIÓN DE SESIÓN AL CARGAR
+// ============================================================
 async function comprobarSesionActiva() {
     const sb = window._supabase;
     if (sb) {
@@ -1339,6 +1406,146 @@ async function comprobarSesionActiva() {
     // Sin sesión activa — mostrar pantalla de login
     const loader = document.getElementById('entrance-loader');
     if (loader) loader.style.display = 'none';
+}
+
+// ============================================================
+// [MULTIPLE IMAGES AND SOCIAL CHANNELS CMS ADDITIONS]
+// ============================================================
+function renderFormImages() {
+    const container = document.getElementById('imagenes-container');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    if (productImages.length === 0) {
+        container.innerHTML = `<span style="color: var(--z-text-secondary); font-size: 12px; font-family: var(--z-font-body);">Sin imágenes agregadas</span>`;
+        return;
+    }
+    
+    productImages.forEach((imgUrl, idx) => {
+        const item = document.createElement('div');
+        item.style.position = 'relative';
+        item.style.width = '64px';
+        item.style.height = '64px';
+        item.style.borderRadius = '8px';
+        item.style.border = '1px solid var(--z-border)';
+        item.style.overflow = 'hidden';
+        item.style.background = 'var(--z-surface-alt)';
+        
+        item.innerHTML = `
+            <img src="${imgUrl}" style="width: 100%; height: 100%; object-fit: cover;">
+            ${idx === 0 ? '<span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); color: #fff; font-size: 8px; text-align: center; font-weight: bold; padding: 2px 0;">Pral</span>' : ''}
+            <button type="button" style="position: absolute; top: 2px; right: 2px; width: 16px; height: 16px; border-radius: 50%; border: none; background: rgba(220,20,60,0.8); color: #fff; font-size: 10px; line-height: 16px; text-align: center; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;">×</button>
+        `;
+        
+        item.querySelector('button').addEventListener('click', () => {
+            productImages.splice(idx, 1);
+            renderFormImages();
+        });
+        
+        container.appendChild(item);
+    });
+}
+
+function renderCanalesView() {
+    const config = currentData.configuracion;
+    if (!config.canalesContacto) {
+        config.canalesContacto = {
+            whatsapp: { enabled: true, phone: config.whatsappNumber || "", saludo: "Hola, me interesa adquirir:", despedia: "¿Está disponible?" },
+            instagram: { enabled: false, username: "", saludo: "Hola, me interesa adquirir:", despedida: "¿Está disponible?" },
+            last_active: "whatsapp"
+        };
+    }
+    
+    const cc = config.canalesContacto;
+    
+    document.getElementById('canal-wa-enabled').checked = !!cc.whatsapp.enabled;
+    document.getElementById('canal-wa-phone').value = cc.whatsapp.phone || "";
+    document.getElementById('canal-wa-saludo').value = cc.whatsapp.saludo || "Hola, me interesa adquirir:";
+    document.getElementById('canal-wa-despedida').value = cc.whatsapp.despedida || cc.whatsapp.despedia || "¿Está disponible?";
+    
+    document.getElementById('canal-ig-enabled').checked = !!cc.instagram.enabled;
+    document.getElementById('canal-ig-username').value = cc.instagram.username || "";
+    document.getElementById('canal-ig-saludo').value = cc.instagram.saludo || "Hola, me interesa adquirir:";
+    document.getElementById('canal-ig-despedida').value = cc.instagram.despedida || "¿Está disponible?";
+}
+
+function setupCanalesConfig() {
+    const btnSave = document.getElementById('btn-guardar-canales');
+    if (!btnSave) return;
+    
+    btnSave.addEventListener('click', async () => {
+        const waEnabled = document.getElementById('canal-wa-enabled').checked;
+        const waPhone = document.getElementById('canal-wa-phone').value.trim();
+        const waSaludo = document.getElementById('canal-wa-saludo').value.trim();
+        const waDespedida = document.getElementById('canal-wa-despedida').value.trim();
+        
+        const igEnabled = document.getElementById('canal-ig-enabled').checked;
+        const igUsername = document.getElementById('canal-ig-username').value.trim();
+        const igSaludo = document.getElementById('canal-ig-saludo').value.trim();
+        const igDespedida = document.getElementById('canal-ig-despedida').value.trim();
+        
+        if (!waEnabled && !igEnabled) {
+            alert("⚠️ Error: Al menos un canal de contacto (WhatsApp o Instagram) debe estar activo.");
+            renderCanalesView();
+            return;
+        }
+        
+        if (waEnabled && !waPhone) {
+            alert("⚠️ Error: Si WhatsApp está activo, debes ingresar un número de teléfono.");
+            return;
+        }
+        
+        if (igEnabled && !igUsername) {
+            alert("⚠️ Error: Si Instagram está activo, debes ingresar un usuario.");
+            return;
+        }
+        
+        let prevLastActive = currentData.configuracion.canalesContacto ? currentData.configuracion.canalesContacto.last_active : "whatsapp";
+        let lastActive = prevLastActive;
+        
+        if (prevLastActive === "whatsapp" && !waEnabled) {
+            lastActive = "instagram";
+        } else if (prevLastActive === "instagram" && !igEnabled) {
+            lastActive = "whatsapp";
+        }
+        
+        if (waEnabled && (!currentData.configuracion.canalesContacto || !currentData.configuracion.canalesContacto.whatsapp.enabled)) {
+            lastActive = "whatsapp";
+        }
+        if (igEnabled && (!currentData.configuracion.canalesContacto || !currentData.configuracion.canalesContacto.instagram.enabled)) {
+            lastActive = "instagram";
+        }
+        
+        currentData.configuracion.canalesContacto = {
+            whatsapp: {
+                enabled: waEnabled,
+                phone: waPhone,
+                saludo: waSaludo || "Hola, me interesa adquirir:",
+                despedida: waDespedida || "¿Está disponible?"
+            },
+            instagram: {
+                enabled: igEnabled,
+                username: igUsername.replace('@', ''),
+                saludo: igSaludo || "Hola, me interesa adquirir:",
+                despedida: igDespedida || "¿Está disponible?"
+            },
+            last_active: lastActive
+        };
+        
+        currentData.configuracion.whatsappNumber = waPhone;
+        
+        btnSave.disabled = true;
+        btnSave.innerHTML = `<span class="material-symbols-outlined spin" style="margin-right: 8px;">sync</span>Guardando...`;
+        
+        const saved = await guardarEnSupabase(currentData, 'config_change');
+        if (saved) {
+            alert("✅ Configuración de canales guardada exitosamente!");
+        }
+        
+        btnSave.disabled = false;
+        btnSave.innerHTML = `<span class="material-symbols-outlined" style="margin-right: 8px;">save</span><span>Guardar Canales</span>`;
+        renderCanalesView();
+    });
 }
 
 comprobarSesionActiva();

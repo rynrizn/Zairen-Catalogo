@@ -49,7 +49,8 @@ const CatalogStorage = {
         blurIntensity: dbConfig.blur_intensity,
         ordenSeccionesEnabled: dbConfig.orden_secciones_enabled,
         ordenSecciones: dbConfig.orden_secciones || [],
-        estados: dbConfig.estados
+        estados: dbConfig.estados,
+        canalesContacto: dbConfig.canales_contacto
       } : { estados: {} };
 
       // Mapear Productos
@@ -63,6 +64,8 @@ const CatalogStorage = {
         estado: p.estado,
         tallas: p.tallas || [],
         imagen: p.imagen,
+        imagenes: p.imagenes || (p.imagen ? [p.imagen] : []),
+        visible: p.visible !== false,
         descripcion: p.descripcion,
         detalles: p.detalles || {},
         tags: p.tags || [],
@@ -131,7 +134,8 @@ const CatalogStorage = {
           blur_intensity: data.configuracion.blurIntensity,
           orden_secciones_enabled: data.configuracion.ordenSeccionesEnabled,
           orden_secciones: data.configuracion.ordenSecciones || [],
-          estados: data.configuracion.estados
+          estados: data.configuracion.estados,
+          canales_contacto: data.configuracion.canalesContacto
         });
         if (error) throw error;
       }
@@ -154,7 +158,11 @@ const CatalogStorage = {
           const mapped = data.productos.map(p => ({
             id: p.id, nombre: p.nombre, precio: p.precio, moneda: p.moneda || 'Bs.',
             seccion: p.seccion, tipo: p.tipo || 'ropa', estado: p.estado || 'disponible',
-            tallas: p.tallas || [], imagen: p.imagen, descripcion: p.descripcion,
+            tallas: p.tallas || [],
+            imagen: p.imagenes && p.imagenes.length > 0 ? p.imagenes[0] : p.imagen,
+            imagenes: p.imagenes || (p.imagen ? [p.imagen] : []),
+            visible: p.visible !== false,
+            descripcion: p.descripcion,
             detalles: p.detalles || {}, tags: p.tags || [], destacado: p.destacado || false
           }));
           const { error } = await _supabaseClient.from('productos').upsert(mapped);

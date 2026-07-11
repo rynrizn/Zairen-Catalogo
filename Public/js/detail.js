@@ -61,6 +61,82 @@ function openProductDetail(producto, configuracion) {
     const escCuidado = producto.detalles && producto.detalles.cuidado ? escapeHTML(producto.detalles.cuidado) : '';
     const isFav = window.isProductFavorite ? window.isProductFavorite(producto.id) : false;
 
+    const imagenes = producto.imagenes && producto.imagenes.length > 0 ? producto.imagenes : (producto.imagen ? [producto.imagen] : []);
+    const hasMultipleImages = imagenes.length > 1;
+
+    // Determinar canales activos
+    const cc = configuracion.canalesContacto || {
+        whatsapp: { enabled: true },
+        instagram: { enabled: false }
+    };
+    const showWa = cc.whatsapp && cc.whatsapp.enabled;
+    const showIg = cc.instagram && cc.instagram.enabled;
+
+    let imageBoxHTML = '';
+    if (hasMultipleImages) {
+        imageBoxHTML = `
+            <!-- Main Image Wrapper -->
+            <div class="detail-carrusel-track" style="position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden;">
+                ${imagenes.map((img, idx) => `
+                    <img src="${img}" alt="${escNombre}" loading="lazy" class="detail-carrusel-slide ${idx === 0 ? 'active' : ''}" data-index="${idx}" style="
+                        position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: ${idx === 0 ? 2 : 1};
+                        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+                        transition: clip-path 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                    ">
+                `).join('')}
+            </div>
+            
+            <span class="bento-badge" style="background-color:${estadoColor}; z-index: 10;">${escEstado}</span>
+            <button class="bento-fullscreen-btn" onclick="openFullscreenImage('${imagenes[0]}')" title="Ver en pantalla completa" style="z-index: 10;">
+                <span class="material-symbols-outlined">fullscreen</span>
+            </button>
+            
+            <!-- Flechas de navegación -->
+            <button type="button" class="detail-carrusel-arrow prev" style="
+                position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+                width: 32px; height: 32px; border-radius: 50%; border: none; background: rgba(0,0,0,0.6);
+                color: #fff; display: flex; align-items: center; justify-content: center; z-index: 10;
+                cursor: pointer;
+            ">
+                <span class="material-symbols-outlined" style="font-size: 20px;">chevron_left</span>
+            </button>
+            <button type="button" class="detail-carrusel-arrow next" style="
+                position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+                width: 32px; height: 32px; border-radius: 50%; border: none; background: rgba(0,0,0,0.6);
+                color: #fff; display: flex; align-items: center; justify-content: center; z-index: 10;
+                cursor: pointer;
+            ">
+                <span class="material-symbols-outlined" style="font-size: 20px;">chevron_right</span>
+            </button>
+            
+            <!-- Fila de Miniaturas -->
+            <div class="detail-thumbnails" style="
+                position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+                display: flex; gap: 8px; z-index: 10; background: rgba(0,0,0,0.4);
+                padding: 6px; border-radius: 12px; backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+            ">
+                ${imagenes.map((img, idx) => `
+                    <div class="detail-thumbnail ${idx === 0 ? 'active' : ''}" data-index="${idx}" style="
+                        width: 36px; height: 48px; border-radius: 6px; overflow: hidden;
+                        border: 2px solid ${idx === 0 ? 'var(--z-crimson)' : 'transparent'};
+                        cursor: pointer; transition: all 0.3s; opacity: ${idx === 0 ? 1 : 0.7};
+                    ">
+                        <img src="${img}" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    } else {
+        imageBoxHTML = `
+            <img src="${producto.imagen}" alt="${escNombre}" loading="lazy">
+            <span class="bento-badge" style="background-color:${estadoColor};">${escEstado}</span>
+            <button class="bento-fullscreen-btn" onclick="openFullscreenImage('${producto.imagen}')" title="Ver en pantalla completa">
+                <span class="material-symbols-outlined">fullscreen</span>
+            </button>
+        `;
+    }
+
     overlayInner.innerHTML = `
         <!-- ============================================ -->
         <!-- BENTO GRID — Product Detail                  -->
@@ -70,12 +146,8 @@ function openProductDetail(producto, configuracion) {
             <!-- ===== ROW 1 ===== -->
 
             <!-- BOX 1: Hero Image (tall, spans 2 rows) -->
-            <div class="bento-cell bento-image">
-                <img src="${producto.imagen}" alt="${escNombre}" loading="lazy">
-                <span class="bento-badge" style="background-color:${estadoColor};">${escEstado}</span>
-                <button class="bento-fullscreen-btn" onclick="openFullscreenImage('${producto.imagen}')" title="Ver en pantalla completa">
-                    <span class="material-symbols-outlined">fullscreen</span>
-                </button>
+            <div class="bento-cell bento-image" style="position: relative; flex-direction: column; justify-content: flex-end;">
+                ${imageBoxHTML}
             </div>
 
             <!-- BOX 2: Name + Description -->
@@ -157,25 +229,40 @@ function openProductDetail(producto, configuracion) {
                     <span class="bento-cell-label">PRECIO</span>
                     <span class="bento-price-value">Bs. ${escPrecio}</span>
                 </div>
-                <div class="bento-actions-btns">
-                    <button id="btn-wsp-detail" class="bento-btn-wsp" ${isAgotado ? 'disabled' : ''} style="display:inline-flex; align-items:center; justify-content:center; gap:8px;">
-                        ${isAgotado ? `
-                          <span>Agotado</span>
-                          <span class="material-symbols-outlined" style="font-size:18px;">block</span>
-                        ` : `
-                          <svg fill="currentColor" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="width:16px; height:16px;">
-                            <path d="M26.576 5.363c-2.69-2.69-6.406-4.354-10.511-4.354-8.209 0-14.865 6.655-14.865 14.865 0 2.732 0.737 5.291 2.022 7.491l-0.038-0.070-2.109 7.702 7.879-2.067c2.051 1.139 4.498 1.809 7.102 1.809h0.006c8.209-0.003 14.862-6.659 14.862-14.868 0-4.103-1.662-7.817-4.349-10.507l0 0zM16.062 28.228h-0.005c-0 0-0.001 0-0.001 0-2.319 0-4.489-0.64-6.342-1.753l0.056 0.031-0.451-0.267-4.675 1.227 1.247-4.559-0.294-0.467c-1.185-1.862-1.889-4.131-1.889-6.565 0-6.822 5.531-12.353 12.353-12.353s12.353 5.531 12.353 12.353c0 6.822-5.53 12.353-12.353 12.353h-0zM22.838 18.977c-0.371-0.186-2.197-1.083-2.537-1.208-0.341-0.124-0.589-0.185-0.837 0.187-0.246 0.371-0.958 1.207-1.175 1.455-0.216 0.249-0.434 0.279-0.805 0.094-1.15-0.466-2.138-1.087-2.997-1.852l0.010 0.009c-0.799-0.74-1.484-1.587-2.037-2.521l-0.028-0.052c-0.216-0.371-0.023-0.572 0.162-0.757 0.167-0.166 0.372-0.434 0.557-0.65 0.146-0.179 0.271-0.384 0.366-0.604l0.006-0.017c0.043-0.087 0.068-0.188 0.068-0.296 0-0.131-0.037-0.253-0.101-0.357l0.002 0.003c-0.094-0.186-0.836-2.014-1.145-2.758-0.302-0.724-0.609-0.625-0.836-0.637-0.216-0.010-0.464-0.012-0.712-0.012-0.395 0.010-0.746 0.188-0.988 0.463l-0.001 0.002c-0.802 0.761-1.3 1.834-1.3 3.023 0 0.026 0 0.053 0.001 0.079l-0-0.004c0.131 1.467 0.681 2.784 1.527 3.857l-0.012-0.015c1.604 2.379 3.742 4.282 6.251 5.564l0.094 0.043c0.548 0.248 1.25 0.513 1.968 0.74l0.149 0.041c0.442 0.14 0.951 0.221 1.479 0.221 0.303 0 0.601-0.027 0.889-0.078l-0.031 0.004c1.069-0.223 1.956-0.868 2.497-1.749l0.009-0.017c0.165-0.366 0.261-0.793 0.261-1.242 0-0.185-0.016-0.366-0.047-0.542l0.003 0.019c-0.092-0.155-0.34-0.247-0.712-0.434z"></path>
-                          </svg>
-                          <span>WhatsApp</span>
-                          <span class="material-symbols-outlined" style="font-size:18px;">east</span>
-                        `}
-                    </button>
+                <div class="bento-actions-btns" style="display: flex; gap: 12px; flex: 1;">
+                    ${showWa ? `
+                        <button id="btn-wsp-detail" class="bento-btn-wsp ${isAgotado ? 'btn-disabled' : ''}" ${isAgotado ? 'disabled' : ''} style="display:inline-flex; align-items:center; justify-content:center; gap:8px; flex: 1; height: 50px; margin: 0;">
+                            ${isAgotado ? `
+                              <span>Agotado</span>
+                              <span class="material-symbols-outlined" style="font-size:18px;">block</span>
+                            ` : `
+                              <svg fill="currentColor" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" style="width:16px; height:16px;">
+                                <path d="M26.576 5.363c-2.69-2.69-6.406-4.354-10.511-4.354-8.209 0-14.865 6.655-14.865 14.865 0 2.732 0.737 5.291 2.022 7.491l-0.038-0.070-2.109 7.702 7.879-2.067c2.051 1.139 4.498 1.809 7.102 1.809h0.006c8.209-0.003 14.862-6.659 14.862-14.868 0-4.103-1.662-7.817-4.349-10.507l0 0zM16.062 28.228h-0.005c-0 0-0.001 0-0.001 0-2.319 0-4.489-0.64-6.342-1.753l0.056 0.031-0.451-0.267-4.675 1.227 1.247-4.559-0.294-0.467c-1.185-1.862-1.889-4.131-1.889-6.565 0-6.822 5.531-12.353 12.353-12.353s12.353 5.531 12.353 12.353c0 6.822-5.53 12.353-12.353 12.353h-0zM22.838 18.977c-0.371-0.186-2.197-1.083-2.537-1.208-0.341-0.124-0.589-0.185-0.837 0.187-0.246 0.371-0.958 1.207-1.175 1.455-0.216 0.249-0.434 0.279-0.805 0.094-1.15-0.466-2.138-1.087-2.997-1.852l0.010 0.009c-0.799-0.74-1.484-1.587-2.037-2.521l-0.028-0.052c-0.216-0.371-0.023-0.572 0.162-0.757 0.167-0.166 0.372-0.434 0.557-0.65 0.146-0.179 0.271-0.384 0.366-0.604l0.006-0.017c0.043-0.087 0.068-0.188 0.068-0.296 0-0.131-0.037-0.253-0.101-0.357l0.002 0.003c-0.094-0.186-0.836-2.014-1.145-2.758-0.302-0.724-0.609-0.625-0.836-0.637-0.216-0.010-0.464-0.012-0.712-0.012-0.395 0.010-0.746 0.188-0.988 0.463l-0.001 0.002c-0.802 0.761-1.3 1.834-1.3 3.023 0 0.026 0 0.053 0.001 0.079l-0-0.004c0.131 1.467 0.681 2.784 1.527 3.857l-0.012-0.015c1.604 2.379 3.742 4.282 6.251 5.564l0.094 0.043c0.548 0.248 1.25 0.513 1.968 0.74l0.149 0.041c0.442 0.14 0.951 0.221 1.479 0.221 0.303 0 0.601-0.027 0.889-0.078l-0.031 0.004c1.069-0.223 1.956-0.868 2.497-1.749l0.009-0.017c0.165-0.366 0.261-0.793 0.261-1.242 0-0.185-0.016-0.366-0.047-0.542l0.003 0.019c-0.092-0.155-0.34-0.247-0.712-0.434z"></path>
+                              </svg>
+                              <span>WhatsApp</span>
+                              <span class="material-symbols-outlined" style="font-size:18px;">east</span>
+                            `}
+                        </button>
+                    ` : ''}
+                    
+                    ${showIg ? `
+                        <button id="btn-ig-detail" class="bento-btn-wsp ${isAgotado ? 'btn-disabled' : ''}" ${isAgotado ? 'disabled' : ''} style="display:inline-flex; align-items:center; justify-content:center; gap:8px; flex: 1; height: 50px; margin: 0; background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);">
+                            ${isAgotado ? `
+                              <span>Agotado</span>
+                              <span class="material-symbols-outlined" style="font-size:18px;">block</span>
+                            ` : `
+                              <span class="material-symbols-outlined" style="font-size: 16px;">photo_camera</span>
+                              <span>Instagram</span>
+                              <span class="material-symbols-outlined" style="font-size:18px;">east</span>
+                            `}
+                        </button>
+                    ` : ''}
                 </div>
             </div>
         </div>
     `;
 
-    // Attach WhatsApp click handler
+    // Attach click handlers
     const wspBtn = document.getElementById('btn-wsp-detail');
     if (wspBtn && !isAgotado) {
         wspBtn.addEventListener('click', () => {
@@ -184,6 +271,74 @@ function openProductDetail(producto, configuracion) {
             window.open(link, '_blank');
         });
     }
+
+    const igBtn = document.getElementById('btn-ig-detail');
+    if (igBtn && !isAgotado) {
+        igBtn.addEventListener('click', () => {
+            if (window.handleInstagramAction) {
+                window.handleInstagramAction(currentProducto, selectedTalla, currentConfig);
+            }
+        });
+    }
+
+    if (hasMultipleImages) {
+        let currentIdx = 0;
+        const slides = overlayInner.querySelectorAll('.detail-carrusel-slide');
+        const thumbs = overlayInner.querySelectorAll('.detail-thumbnail');
+        const arrowPrev = overlayInner.querySelector('.detail-carrusel-arrow.prev');
+        const arrowNext = overlayInner.querySelector('.detail-carrusel-arrow.next');
+        
+        const goToImage = (newIdx) => {
+            if (newIdx === currentIdx) return;
+            if (newIdx < 0) newIdx = imagenes.length - 1;
+            if (newIdx >= imagenes.length) newIdx = 0;
+            
+            const prevSlide = slides[currentIdx];
+            const nextSlide = slides[newIdx];
+            
+            slides.forEach((slide, sIdx) => {
+                if (sIdx === currentIdx) {
+                    slide.style.zIndex = '2';
+                } else if (sIdx === newIdx) {
+                    slide.style.zIndex = '3';
+                } else {
+                    slide.style.zIndex = '1';
+                }
+            });
+            
+            nextSlide.style.clipPath = 'polygon(100% 0, 120% 0, 100% 100%, 80% 100%)';
+            nextSlide.offsetHeight; // Forzar reflow
+            nextSlide.style.clipPath = 'polygon(0 0, 100% 0, 100% 100%, 0 100%)';
+            
+            thumbs.forEach((t, tIdx) => {
+                const isActive = tIdx === newIdx;
+                t.classList.toggle('active', isActive);
+                t.style.borderColor = isActive ? 'var(--z-crimson)' : 'transparent';
+                t.style.opacity = isActive ? '1' : '0.7';
+            });
+            
+            currentIdx = newIdx;
+            
+            const fullscreenBtn = overlayInner.querySelector('.bento-fullscreen-btn');
+            if (fullscreenBtn) {
+                fullscreenBtn.setAttribute('onclick', `openFullscreenImage('${imagenes[newIdx]}')`);
+            }
+        };
+        
+        if (arrowPrev && arrowNext) {
+            arrowPrev.addEventListener('click', () => goToImage(currentIdx - 1));
+            arrowNext.addEventListener('click', () => goToImage(currentIdx + 1));
+        }
+        
+        thumbs.forEach(thumb => {
+            thumb.addEventListener('click', () => {
+                const targetIdx = parseInt(thumb.dataset.index, 10);
+                goToImage(targetIdx);
+            });
+        });
+    }
+
+
 
     // Show overlay with animation
     overlay.classList.add('visible');
